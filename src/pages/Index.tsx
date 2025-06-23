@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,8 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, FileText, Download, User, Briefcase, Book, List, Languages } from "lucide-react";
+import { Plus, Trash2, FileText, User, Briefcase, Book, List, Languages, ArrowLeft } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import CVPreview from "@/components/CVPreview";
+import CVGenerator from "@/components/CVGenerator";
 
 interface PersonalData {
   fullName: string;
@@ -46,6 +47,7 @@ interface Language {
 
 const Index = () => {
   const { toast } = useToast();
+  const [showPreview, setShowPreview] = useState(false);
   
   const [personalData, setPersonalData] = useState<PersonalData>({
     fullName: "",
@@ -170,6 +172,40 @@ const Index = () => {
       description: "Seu currículo foi gerado com o design selecionado.",
     });
   };
+
+  if (showPreview) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <div className="container mx-auto px-4 py-8">
+          <div className="mb-6">
+            <Button 
+              onClick={() => setShowPreview(false)}
+              variant="outline"
+              className="mb-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Voltar para Edição
+            </Button>
+            <div className="text-center">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Preview do Seu Currículo</h1>
+              <p className="text-gray-600">Design: <span className="capitalize font-semibold">{selectedDesign}</span></p>
+            </div>
+          </div>
+          
+          <div className="flex justify-center">
+            <CVPreview
+              personalData={personalData}
+              experiences={experiences}
+              education={education}
+              skills={skills}
+              languages={languages}
+              design={selectedDesign}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -544,11 +580,11 @@ const Index = () => {
 
                 {selectedDesign && (
                   <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-semibold mb-2">Prévia do Design:</h4>
+                    <h4 className="font-semibold mb-2">Preview do Design:</h4>
                     <div className="w-full h-32 bg-gradient-to-br from-gray-200 to-gray-300 rounded border-2 border-dashed border-gray-400 flex items-center justify-center">
                       <span className="text-gray-600 text-center">
                         Prévia do design<br />
-                        <strong>{selectedDesign}</strong>
+                        <strong className="capitalize">{selectedDesign}</strong>
                       </span>
                     </div>
                   </div>
@@ -556,17 +592,15 @@ const Index = () => {
 
                 <Separator className="my-6" />
 
-                <div className="space-y-3">
-                  <Button onClick={generateCV} className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3">
-                    <FileText className="w-5 h-5 mr-2" />
-                    Gerar Currículo
-                  </Button>
-                  
-                  <Button variant="outline" className="w-full">
-                    <Download className="w-5 h-5 mr-2" />
-                    Baixar PDF
-                  </Button>
-                </div>
+                <CVGenerator
+                  personalData={personalData}
+                  experiences={experiences}
+                  education={education}
+                  skills={skills}
+                  languages={languages}
+                  selectedDesign={selectedDesign}
+                  onShowPreview={() => setShowPreview(true)}
+                />
 
                 <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="font-semibold text-blue-800 mb-2">💡 Dicas:</h4>
