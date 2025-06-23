@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Plus, Trash2, FileText, Download, User, Briefcase, Book, List, Language } from "lucide-react";
+import { Plus, Trash2, FileText, Download, User, Briefcase, Book, List, Languages } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface PersonalData {
@@ -469,7 +469,7 @@ const Index = () => {
             <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
               <CardHeader className="bg-gradient-to-r from-teal-500 to-teal-600 text-white rounded-t-lg">
                 <CardTitle className="flex items-center gap-2">
-                  <Language className="w-5 h-5" />
+                  <Languages className="w-5 h-5" />
                   Idiomas
                 </CardTitle>
               </CardHeader>
