@@ -10,6 +10,7 @@ import { Plus, Trash2, FileText, User, Briefcase, Book, List, Languages, ArrowLe
 import { useToast } from "@/hooks/use-toast";
 import CVPreview from "@/components/CVPreview";
 import CVGenerator from "@/components/CVGenerator";
+import Header from "@/components/Header";
 
 interface PersonalData {
   fullName: string;
@@ -176,6 +177,7 @@ const Index = () => {
   if (showPreview) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="mb-6">
             <Button 
@@ -209,17 +211,15 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <FileText className="w-8 h-8 text-blue-600" />
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Gerador de Currículo
-            </h1>
-          </div>
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+            Crie seu Currículo Profissional
+          </h1>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Crie seu currículo profissional de forma rápida e fácil. Preencha os campos abaixo e escolha o design que mais combina com você.
+            Preencha os campos abaixo e escolha o design que mais combina com você.
           </p>
         </div>
 
