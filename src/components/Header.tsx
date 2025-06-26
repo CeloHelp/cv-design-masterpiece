@@ -1,11 +1,19 @@
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, FileText } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { LogOut, FileText, User, Settings } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useProfile } from "@/hooks/useProfile";
+import { useState } from "react";
 
-const Header = () => {
+interface HeaderProps {
+  onShowProfile?: () => void;
+}
+
+const Header = ({ onShowProfile }: HeaderProps) => {
   const { user, signOut } = useAuth();
+  const { profile } = useProfile();
 
   const getInitials = (name: string) => {
     return name
@@ -17,6 +25,9 @@ const Header = () => {
   };
 
   const getUserDisplayName = () => {
+    if (profile?.full_name) {
+      return profile.full_name;
+    }
     if (user?.user_metadata?.full_name) {
       return user.user_metadata.full_name;
     }
@@ -35,26 +46,40 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">
-                  {getInitials(getUserDisplayName())}
-                </AvatarFallback>
-              </Avatar>
-              <span className="text-sm text-gray-700 hidden sm:block">
-                Olá, {getUserDisplayName()}
-              </span>
-            </div>
-            
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={signOut}
-              className="flex items-center gap-2"
-            >
-              <LogOut className="w-4 h-4" />
-              <span className="hidden sm:block">Sair</span>
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-3 h-auto p-2">
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-blue-100 text-blue-600 text-sm">
+                      {getInitials(getUserDisplayName())}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm text-gray-700 hidden sm:block">
+                    {getUserDisplayName()}
+                  </span>
+                </Button>
+              </DropdownMenuTrigger>
+              
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem 
+                  onClick={onShowProfile}
+                  className="flex items-center gap-2 cursor-pointer"
+                >
+                  <User className="w-4 h-4" />
+                  Editar Perfil
+                </DropdownMenuItem>
+                
+                <DropdownMenuSeparator />
+                
+                <DropdownMenuItem 
+                  onClick={signOut}
+                  className="flex items-center gap-2 cursor-pointer text-red-600 focus:text-red-600"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Sair
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
