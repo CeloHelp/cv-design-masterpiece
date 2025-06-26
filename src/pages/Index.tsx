@@ -10,6 +10,7 @@ import { Plus, Trash2, FileText, User, Briefcase, Book, List, Languages, ArrowLe
 import { useToast } from "@/hooks/use-toast";
 import CVPreview from "@/components/CVPreview";
 import CVGenerator from "@/components/CVGenerator";
+import SavedCVs from "@/components/SavedCVs";
 import Header from "@/components/Header";
 
 interface PersonalData {
@@ -171,6 +172,20 @@ const Index = () => {
     toast({
       title: "CV Gerado com sucesso!",
       description: "Seu currículo foi gerado com o design selecionado.",
+    });
+  };
+
+  const handleLoadCV = (cvData: any) => {
+    setPersonalData(cvData.personalData);
+    setExperiences(cvData.experiences);
+    setEducation(cvData.education);
+    setSkills(cvData.skills);
+    setLanguages(cvData.languages);
+    setSelectedDesign(cvData.selectedDesign);
+    
+    toast({
+      title: "CV carregado!",
+      description: "Os dados do currículo foram carregados com sucesso.",
     });
   };
 
@@ -559,6 +574,19 @@ const Index = () => {
 
           {/* Design Selection & Actions */}
           <div className="space-y-6">
+            {/* Saved CVs */}
+            <SavedCVs
+              currentCVData={{
+                personalData,
+                experiences,
+                education,
+                skills,
+                languages,
+                selectedDesign,
+              }}
+              onLoadCV={handleLoadCV}
+            />
+
             <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm sticky top-6">
               <CardHeader className="bg-gradient-to-r from-indigo-500 to-indigo-600 text-white rounded-t-lg">
                 <CardTitle>Design do Currículo</CardTitle>

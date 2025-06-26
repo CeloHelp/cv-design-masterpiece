@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Eye } from "lucide-react";
+import { Download, FileText, Eye, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCVs, CVData } from '@/hooks/useCVs';
 
 interface PersonalData {
   fullName: string;
@@ -58,6 +59,7 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
   onShowPreview
 }) => {
   const { toast } = useToast();
+  const { saveCV, isSaving } = useCVs();
 
   const generateCV = () => {
     if (!personalData.fullName || !personalData.email || !selectedDesign) {
@@ -75,6 +77,33 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
     });
     
     onShowPreview();
+  };
+
+  const handleQuickSave = async () => {
+    if (!personalData.fullName || !personalData.email || !selectedDesign) {
+      toast({
+        title: "Campos obrigatórios",
+        description: "Por favor, preencha pelo menos o nome, email e selecione um design antes de salvar.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const cvData: CVData = {
+      title: `CV - ${personalData.fullName}`,
+      personal_data: personalData,
+      experiences,
+      education,
+      skills,
+      languages,
+      selected_design: selectedDesign,
+    };
+
+    try {
+      await saveCV(cvData);
+    } catch (error) {
+      console.error('Error quick saving CV:', error);
+    }
   };
 
   const downloadPDF = () => {
@@ -119,6 +148,16 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
       
       {hasValidData && selectedDesign && (
         <>
+          <Button 
+            onClick={handleQuickSave}
+            variant="outline" 
+            className="w-full"
+            disabled={isSaving}
+          >
+            <Save className="w-5 h-5 mr-2" />
+            {isSaving ? 'Salvando...' : 'Salvar Rápido'}
+          </Button>
+
           <Button 
             onClick={onShowPreview}
             variant="outline" 
