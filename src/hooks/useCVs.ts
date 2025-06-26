@@ -158,6 +158,6 @@ export const useCVs = () => {
     loadCV: loadCVMutation.mutateAsync,
     isSaving: saveCVMutation.isPending,
     isDeleting: deleteCVMutation.isPending,
-    isLoading: loadCVMutation.isPending,
+    isLoadingCV: loadCVMutation.isPending,
   };
 };
