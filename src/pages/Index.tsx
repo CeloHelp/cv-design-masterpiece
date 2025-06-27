@@ -5,9 +5,70 @@ import CVGenerator from "@/components/CVGenerator";
 import CVPreview from "@/components/CVPreview";
 import SavedCVs from "@/components/SavedCVs";
 import ProfileEdit from "@/components/ProfileEdit";
-import { CVProvider } from "@/contexts/CVContext";
+import { CVProvider, useCVContext } from "@/contexts/CVContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Save } from "lucide-react";
+
+const CVContent = () => {
+  const { 
+    personalData,
+    experiences,
+    education,
+    skills,
+    languages,
+    selectedDesign,
+    updatePersonalData,
+    updateExperiences,
+    updateEducation,
+    updateSkills,
+    updateLanguages,
+    updateSelectedDesign
+  } = useCVContext();
+
+  const handleLoadCV = (cvData: any) => {
+    updatePersonalData(cvData.personalData);
+    updateExperiences(cvData.experiences);
+    updateEducation(cvData.education);
+    updateSkills(cvData.skills);
+    updateLanguages(cvData.languages);
+    updateSelectedDesign(cvData.selectedDesign);
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+      <div className="space-y-6">
+        <CVGenerator />
+      </div>
+      <div className="lg:sticky lg:top-8 lg:self-start">
+        <CVPreview />
+      </div>
+    </div>
+  );
+};
+
+const SavedCVsContent = () => {
+  const cvContext = useCVContext();
+
+  const handleLoadCV = (cvData: any) => {
+    cvContext.updatePersonalData(cvData.personalData);
+    cvContext.updateExperiences(cvData.experiences);
+    cvContext.updateEducation(cvData.education);
+    cvContext.updateSkills(cvData.skills);
+    cvContext.updateLanguages(cvData.languages);
+    cvContext.updateSelectedDesign(cvData.selectedDesign);
+  };
+
+  const currentCVData = {
+    personalData: cvContext.personalData,
+    experiences: cvContext.experiences,
+    education: cvContext.education,
+    skills: cvContext.skills,
+    languages: cvContext.languages,
+    selectedDesign: cvContext.selectedDesign,
+  };
+
+  return <SavedCVs currentCVData={currentCVData} onLoadCV={handleLoadCV} />;
+};
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -62,18 +123,11 @@ const Index = () => {
             </div>
 
             <TabsContent value="create">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-                <div className="space-y-6">
-                  <CVGenerator />
-                </div>
-                <div className="lg:sticky lg:top-8 lg:self-start">
-                  <CVPreview />
-                </div>
-              </div>
+              <CVContent />
             </TabsContent>
 
             <TabsContent value="saved">
-              <SavedCVs />
+              <SavedCVsContent />
             </TabsContent>
           </Tabs>
         </div>
