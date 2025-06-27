@@ -5,38 +5,37 @@ import CVGenerator from "@/components/CVGenerator";
 import CVPreview from "@/components/CVPreview";
 import SavedCVs from "@/components/SavedCVs";
 import ProfileEdit from "@/components/ProfileEdit";
+import PersonalDataForm from "@/components/PersonalDataForm";
+import ExperienceForm from "@/components/ExperienceForm";
+import EducationForm from "@/components/EducationForm";
+import SkillsForm from "@/components/SkillsForm";
+import LanguagesForm from "@/components/LanguagesForm";
+import DesignSelector from "@/components/DesignSelector";
 import { CVProvider, useCVContext } from "@/contexts/CVContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Save } from "lucide-react";
 
 const CVContent = () => {
-  const { 
-    personalData,
-    experiences,
-    education,
-    skills,
-    languages,
-    selectedDesign,
-    updatePersonalData,
-    updateExperiences,
-    updateEducation,
-    updateSkills,
-    updateLanguages,
-    updateSelectedDesign
-  } = useCVContext();
+  const cvContext = useCVContext();
 
   const handleLoadCV = (cvData: any) => {
-    updatePersonalData(cvData.personalData);
-    updateExperiences(cvData.experiences);
-    updateEducation(cvData.education);
-    updateSkills(cvData.skills);
-    updateLanguages(cvData.languages);
-    updateSelectedDesign(cvData.selectedDesign);
+    cvContext.updatePersonalData(cvData.personalData);
+    cvContext.updateExperiences(cvData.experiences);
+    cvContext.updateEducation(cvData.education);
+    cvContext.updateSkills(cvData.skills);
+    cvContext.updateLanguages(cvData.languages);
+    cvContext.updateSelectedDesign(cvData.selectedDesign);
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
       <div className="space-y-6">
+        <DesignSelector />
+        <PersonalDataForm />
+        <ExperienceForm />
+        <EducationForm />
+        <SkillsForm />
+        <LanguagesForm />
         <CVGenerator />
       </div>
       <div className="lg:sticky lg:top-8 lg:self-start">

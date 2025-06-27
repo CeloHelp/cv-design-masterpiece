@@ -1,0 +1,139 @@
+
+import { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { useCVContext } from '@/contexts/CVContext';
+import { Briefcase, Plus, Trash2 } from 'lucide-react';
+
+const ExperienceForm = () => {
+  const { experiences, updateExperiences } = useCVContext();
+
+  const addExperience = () => {
+    const newExperience = {
+      id: Date.now().toString(),
+      company: '',
+      position: '',
+      startDate: '',
+      endDate: '',
+      current: false,
+      description: ''
+    };
+    updateExperiences([...experiences, newExperience]);
+  };
+
+  const updateExperience = (id: string, field: string, value: string | boolean) => {
+    const updated = experiences.map(exp => 
+      exp.id === id ? { ...exp, [field]: value } : exp
+    );
+    updateExperiences(updated);
+  };
+
+  const removeExperience = (id: string) => {
+    updateExperiences(experiences.filter(exp => exp.id !== id));
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Briefcase className="w-5 h-5" />
+            Experiência Profissional
+          </div>
+          <Button onClick={addExperience} size="sm">
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar
+          </Button>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {experiences.map((exp) => (
+          <div key={exp.id} className="border rounded-lg p-4 space-y-4">
+            <div className="flex justify-between items-start">
+              <h4 className="font-medium">Experiência</h4>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeExperience(exp.id)}
+              >
+                <Trash2 className="w-4 h-4" />
+              </Button>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Empresa</Label>
+                <Input
+                  value={exp.company}
+                  onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
+                  placeholder="Nome da empresa"
+                />
+              </div>
+              <div>
+                <Label>Cargo</Label>
+                <Input
+                  value={exp.position}
+                  onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
+                  placeholder="Seu cargo"
+                />
+              </div>
+            </div>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>Data de Início</Label>
+                <Input
+                  type="month"
+                  value={exp.startDate}
+                  onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                />
+              </div>
+              <div>
+                <Label>Data de Fim</Label>
+                <Input
+                  type="month"
+                  value={exp.endDate}
+                  onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                  disabled={exp.current}
+                />
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id={`current-${exp.id}`}
+                checked={exp.current}
+                onCheckedChange={(checked) => updateExperience(exp.id, 'current', checked as boolean)}
+              />
+              <Label htmlFor={`current-${exp.id}`}>Trabalho atual</Label>
+            </div>
+            
+            <div>
+              <Label>Descrição</Label>
+              <Textarea
+                value={exp.description}
+                onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
+                placeholder="Descreva suas responsabilidades e conquistas"
+                rows={3}
+              />
+            </div>
+          </div>
+        ))}
+        
+        {experiences.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            <Briefcase className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+            <p>Nenhuma experiência adicionada</p>
+            <p className="text-sm">Clique em "Adicionar" para começar</p>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+export default ExperienceForm;
