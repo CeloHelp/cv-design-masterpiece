@@ -4,62 +4,19 @@ import { Button } from "@/components/ui/button";
 import { Download, FileText, Eye, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCVs, CVData } from '@/hooks/useCVs';
+import { useCVContext } from '@/contexts/CVContext';
 
-interface PersonalData {
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  professionalSummary: string;
-}
-
-interface Experience {
-  id: string;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  description: string;
-}
-
-interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-}
-
-interface Language {
-  id: string;
-  language: string;
-  proficiency: string;
-}
-
-interface CVGeneratorProps {
-  personalData: PersonalData;
-  experiences: Experience[];
-  education: Education[];
-  skills: string;
-  languages: Language[];
-  selectedDesign: string;
-  onShowPreview: () => void;
-}
-
-const CVGenerator: React.FC<CVGeneratorProps> = ({
-  personalData,
-  experiences,
-  education,
-  skills,
-  languages,
-  selectedDesign,
-  onShowPreview
-}) => {
+const CVGenerator: React.FC = () => {
   const { toast } = useToast();
   const { saveCV, isSaving } = useCVs();
+  const { 
+    personalData,
+    experiences,
+    education,
+    skills,
+    languages,
+    selectedDesign 
+  } = useCVContext();
 
   const generateCV = () => {
     if (!personalData.fullName || !personalData.email || !selectedDesign) {
@@ -75,8 +32,6 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
       title: "CV Gerado com sucesso!",
       description: "Seu currículo foi gerado com o design selecionado.",
     });
-    
-    onShowPreview();
   };
 
   const handleQuickSave = async () => {
@@ -116,13 +71,11 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
       return;
     }
 
-    // Simular download do PDF
     toast({
       title: "Download iniciado!",
       description: "Seu currículo em PDF está sendo preparado...",
     });
 
-    // Em uma implementação real, aqui seria feita a geração e download do PDF
     setTimeout(() => {
       toast({
         title: "PDF pronto!",
@@ -158,15 +111,6 @@ const CVGenerator: React.FC<CVGeneratorProps> = ({
             {isSaving ? 'Salvando...' : 'Salvar Rápido'}
           </Button>
 
-          <Button 
-            onClick={onShowPreview}
-            variant="outline" 
-            className="w-full"
-          >
-            <Eye className="w-5 h-5 mr-2" />
-            Visualizar Preview
-          </Button>
-          
           <Button 
             onClick={downloadPDF}
             variant="outline" 

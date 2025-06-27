@@ -5,8 +5,9 @@ import CVGenerator from "@/components/CVGenerator";
 import CVPreview from "@/components/CVPreview";
 import SavedCVs from "@/components/SavedCVs";
 import ProfileEdit from "@/components/ProfileEdit";
+import { CVProvider } from "@/contexts/CVContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Save, User } from "lucide-react";
+import { FileText, Save } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("create");
@@ -32,50 +33,52 @@ const Index = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <Header onShowProfile={() => setShowProfile(true)} />
-      
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
-          <h2 className="text-3xl font-bold text-gray-800 mb-4">
-            Crie seu currículo profissional
-          </h2>
-          <p className="text-gray-600 text-lg">
-            Escolha um design, preencha suas informações e baixe em PDF
-          </p>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <div className="flex justify-center mb-8">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="create" className="flex items-center gap-2">
-                <FileText className="w-4 h-4" />
-                Criar CV
-              </TabsTrigger>
-              <TabsTrigger value="saved" className="flex items-center gap-2">
-                <Save className="w-4 h-4" />
-                CVs Salvos
-              </TabsTrigger>
-            </TabsList>
+    <CVProvider>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        <Header onShowProfile={() => setShowProfile(true)} />
+        
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-gray-800 mb-4">
+              Crie seu currículo profissional
+            </h2>
+            <p className="text-gray-600 text-lg">
+              Escolha um design, preencha suas informações e baixe em PDF
+            </p>
           </div>
 
-          <TabsContent value="create">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
-              <div className="space-y-6">
-                <CVGenerator />
-              </div>
-              <div className="lg:sticky lg:top-8 lg:self-start">
-                <CVPreview />
-              </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <div className="flex justify-center mb-8">
+              <TabsList className="grid w-full max-w-md grid-cols-2">
+                <TabsTrigger value="create" className="flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Criar CV
+                </TabsTrigger>
+                <TabsTrigger value="saved" className="flex items-center gap-2">
+                  <Save className="w-4 h-4" />
+                  CVs Salvos
+                </TabsTrigger>
+              </TabsList>
             </div>
-          </TabsContent>
 
-          <TabsContent value="saved">
-            <SavedCVs />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="create">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+                <div className="space-y-6">
+                  <CVGenerator />
+                </div>
+                <div className="lg:sticky lg:top-8 lg:self-start">
+                  <CVPreview />
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="saved">
+              <SavedCVs />
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
-    </div>
+    </CVProvider>
   );
 };
 
