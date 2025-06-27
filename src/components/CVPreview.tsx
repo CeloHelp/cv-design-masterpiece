@@ -1,58 +1,19 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { FileText } from "lucide-react";
+import { useCVContext } from '@/contexts/CVContext';
 
-interface PersonalData {
-  fullName: string;
-  email: string;
-  phone: string;
-  address: string;
-  professionalSummary: string;
-}
+const CVPreview: React.FC = () => {
+  const {
+    personalData,
+    experiences,
+    education,
+    skills,
+    languages,
+    selectedDesign
+  } = useCVContext();
 
-interface Experience {
-  id: string;
-  company: string;
-  position: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-  description: string;
-}
-
-interface Education {
-  id: string;
-  institution: string;
-  degree: string;
-  field: string;
-  startDate: string;
-  endDate: string;
-  current: boolean;
-}
-
-interface Language {
-  id: string;
-  language: string;
-  proficiency: string;
-}
-
-interface CVPreviewProps {
-  personalData: PersonalData;
-  experiences: Experience[];
-  education: Education[];
-  skills: string;
-  languages: Language[];
-  design: string;
-}
-
-const CVPreview: React.FC<CVPreviewProps> = ({
-  personalData,
-  experiences,
-  education,
-  skills,
-  languages,
-  design
-}) => {
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
     const date = new Date(dateString + '-01');
@@ -64,7 +25,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({
 
   const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
 
-  if (design === 'modern') {
+  if (selectedDesign === 'modern') {
     return (
       <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
@@ -164,7 +125,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({
     );
   }
 
-  if (design === 'classic') {
+  if (selectedDesign === 'classic') {
     return (
       <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto border" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
@@ -254,7 +215,7 @@ const CVPreview: React.FC<CVPreviewProps> = ({
     );
   }
 
-  if (design === 'creative') {
+  if (selectedDesign === 'creative') {
     return (
       <div className="cv-preview bg-gradient-to-br from-purple-50 to-pink-50 p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
