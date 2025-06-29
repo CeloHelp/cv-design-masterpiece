@@ -9,6 +9,62 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cv_history: {
+        Row: {
+          change_description: string | null
+          created_at: string
+          cv_id: string
+          education: Json
+          experiences: Json
+          id: string
+          languages: Json
+          personal_data: Json
+          selected_design: string
+          skills: string | null
+          title: string
+          user_id: string
+          version_number: number
+        }
+        Insert: {
+          change_description?: string | null
+          created_at?: string
+          cv_id: string
+          education?: Json
+          experiences?: Json
+          id?: string
+          languages?: Json
+          personal_data?: Json
+          selected_design?: string
+          skills?: string | null
+          title: string
+          user_id: string
+          version_number: number
+        }
+        Update: {
+          change_description?: string | null
+          created_at?: string
+          cv_id?: string
+          education?: Json
+          experiences?: Json
+          id?: string
+          languages?: Json
+          personal_data?: Json
+          selected_design?: string
+          skills?: string | null
+          title?: string
+          user_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cv_history_cv_id_fkey"
+            columns: ["cv_id"]
+            isOneToOne: false
+            referencedRelation: "cvs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cvs: {
         Row: {
           created_at: string

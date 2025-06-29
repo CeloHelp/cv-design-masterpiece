@@ -6,10 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Save, FolderOpen, Trash2, Edit, Calendar } from 'lucide-react';
+import { Save, FolderOpen, Trash2, Edit, Calendar, History } from 'lucide-react';
 import { useCVs, CVData } from '@/hooks/useCVs';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import CVHistoryDialog from './CVHistoryDialog';
 
 interface SavedCVsProps {
   currentCVData: {
@@ -28,6 +29,9 @@ const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [cvTitle, setCvTitle] = useState('');
   const [selectedCVId, setSelectedCVId] = useState<string | null>(null);
+  const [historyDialogOpen, setHistoryDialogOpen] = useState(false);
+  const [selectedHistoryCVId, setSelectedHistoryCVId] = useState<string>('');
+  const [selectedHistoryCVTitle, setSelectedHistoryCVTitle] = useState<string>('');
 
   const handleSaveCV = async () => {
     if (!cvTitle.trim()) return;
@@ -81,6 +85,16 @@ const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
     setSelectedCVId(cvId || null);
     setCvTitle(title || '');
     setSaveDialogOpen(true);
+  };
+
+  const openHistoryDialog = (cvId: string, title: string) => {
+    setSelectedHistoryCVId(cvId);
+    setSelectedHistoryCVTitle(title);
+    setHistoryDialogOpen(true);
+  };
+
+  const handleRestoreVersion = (versionData: any) => {
+    onLoadCV(versionData);
   };
 
   return (
@@ -178,6 +192,14 @@ const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
                   <Button
                     size="sm"
                     variant="outline"
+                    onClick={() => openHistoryDialog(cv.id, cv.title)}
+                  >
+                    <History className="w-3 h-3" />
+                  </Button>
+                  
+                  <Button
+                    size="sm"
+                    variant="outline"
                     onClick={() => openSaveDialog(cv.id, cv.title)}
                   >
                     <Edit className="w-3 h-3" />
@@ -217,6 +239,15 @@ const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
             ))
           )}
         </div>
+
+        {/* CV History Dialog */}
+        <CVHistoryDialog
+          cvId={selectedHistoryCVId}
+          cvTitle={selectedHistoryCVTitle}
+          isOpen={historyDialogOpen}
+          onClose={() => setHistoryDialogOpen(false)}
+          onRestoreVersion={handleRestoreVersion}
+        />
       </CardContent>
     </Card>
   );
