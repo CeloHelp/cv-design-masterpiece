@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import Header from "@/components/Header";
 import CVGenerator from "@/components/CVGenerator";
@@ -10,9 +11,10 @@ import EducationForm from "@/components/EducationForm";
 import SkillsForm from "@/components/SkillsForm";
 import LanguagesForm from "@/components/LanguagesForm";
 import DesignSelector from "@/components/DesignSelector";
+import StatisticsCard from "@/components/StatisticsCard";
 import { CVProvider, useCVContext } from "@/contexts/CVContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FileText, Save } from "lucide-react";
+import { FileText, Save, BarChart3 } from "lucide-react";
 
 const CVContent = () => {
   const cvContext = useCVContext();
@@ -110,7 +112,7 @@ const Index = () => {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="flex justify-center mb-8">
-              <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsList className="grid w-full max-w-2xl grid-cols-3">
                 <TabsTrigger value="create" className="flex items-center gap-2">
                   <FileText className="w-4 h-4" />
                   Criar CV
@@ -118,6 +120,10 @@ const Index = () => {
                 <TabsTrigger value="saved" className="flex items-center gap-2">
                   <Save className="w-4 h-4" />
                   CVs Salvos
+                </TabsTrigger>
+                <TabsTrigger value="statistics" className="flex items-center gap-2">
+                  <BarChart3 className="w-4 h-4" />
+                  Estatísticas
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -128,6 +134,20 @@ const Index = () => {
 
             <TabsContent value="saved">
               <SavedCVsContent />
+            </TabsContent>
+
+            <TabsContent value="statistics">
+              <div className="max-w-7xl mx-auto">
+                <div className="mb-8">
+                  <h3 className="text-2xl font-bold text-gray-800 mb-2">
+                    Estatísticas de Uso
+                  </h3>
+                  <p className="text-gray-600">
+                    Veja como a plataforma está sendo utilizada e seus padrões de uso
+                  </p>
+                </div>
+                <StatisticsCard />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
