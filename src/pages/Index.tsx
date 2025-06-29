@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import Header from "@/components/Header";
 import CVGenerator from "@/components/CVGenerator";
@@ -18,7 +17,8 @@ import { FileText, Save } from "lucide-react";
 const CVContent = () => {
   const cvContext = useCVContext();
 
-  const handleLoadCV = (cvData: any) => {
+  const handleLoadCV = (cvData: any, cvId?: string) => {
+    cvContext.setCurrentCVId(cvId || null);
     cvContext.updatePersonalData(cvData.personalData);
     cvContext.updateExperiences(cvData.experiences);
     cvContext.updateEducation(cvData.education);
@@ -48,7 +48,8 @@ const CVContent = () => {
 const SavedCVsContent = () => {
   const cvContext = useCVContext();
 
-  const handleLoadCV = (cvData: any) => {
+  const handleLoadCV = (cvData: any, cvId?: string) => {
+    cvContext.setCurrentCVId(cvId || null);
     cvContext.updatePersonalData(cvData.personalData);
     cvContext.updateExperiences(cvData.experiences);
     cvContext.updateEducation(cvData.education);

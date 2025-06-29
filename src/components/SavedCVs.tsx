@@ -21,7 +21,7 @@ interface SavedCVsProps {
     languages: any[];
     selectedDesign: string;
   };
-  onLoadCV: (cvData: any) => void;
+  onLoadCV: (cvData: any, cvId?: string) => void;
 }
 
 const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
@@ -67,7 +67,7 @@ const SavedCVs: React.FC<SavedCVsProps> = ({ currentCVData, onLoadCV }) => {
         skills: cvData.skills,
         languages: cvData.languages,
         selectedDesign: cvData.selected_design,
-      });
+      }, cvId);
     } catch (error) {
       console.error('Error loading CV:', error);
     }

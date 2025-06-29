@@ -10,6 +10,7 @@ const CVGenerator: React.FC = () => {
   const { toast } = useToast();
   const { saveCV, isSaving } = useCVs();
   const { 
+    currentCVId,
     personalData,
     experiences,
     education,
@@ -45,7 +46,8 @@ const CVGenerator: React.FC = () => {
     }
 
     const cvData: CVData = {
-      title: `CV - ${personalData.fullName}`,
+      id: currentCVId || undefined,
+      title: currentCVId ? `CV - ${personalData.fullName}` : `CV - ${personalData.fullName}`,
       personal_data: personalData,
       experiences,
       education,
@@ -108,7 +110,7 @@ const CVGenerator: React.FC = () => {
             disabled={isSaving}
           >
             <Save className="w-5 h-5 mr-2" />
-            {isSaving ? 'Salvando...' : 'Salvar Rápido'}
+            {isSaving ? 'Salvando...' : currentCVId ? 'Atualizar CV' : 'Salvar Rápido'}
           </Button>
 
           <Button 
