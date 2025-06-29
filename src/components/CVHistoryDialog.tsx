@@ -40,6 +40,11 @@ const CVHistoryDialog: React.FC<CVHistoryDialogProps> = ({
     onClose();
   };
 
+  // Helper function to safely get array length
+  const getArrayLength = (jsonData: any): number => {
+    return Array.isArray(jsonData) ? jsonData.length : 0;
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[80vh]">
@@ -95,10 +100,10 @@ const CVHistoryDialog: React.FC<CVHistoryDialogProps> = ({
                         Design: <span className="capitalize">{entry.selected_design}</span>
                       </span>
                       <span>
-                        Experiências: {entry.experiences?.length || 0}
+                        Experiências: {getArrayLength(entry.experiences)}
                       </span>
                       <span>
-                        Educação: {entry.education?.length || 0}
+                        Educação: {getArrayLength(entry.education)}
                       </span>
                     </div>
                     
