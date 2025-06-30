@@ -17,6 +17,54 @@ const ProfilePhotoUpload = ({ currentPhotoUrl, onPhotoChange }: ProfilePhotoUplo
   const { user } = useAuth();
   const { toast } = useToast();
 
+  const compressImage = (file: File): Promise<File> => {
+    return new Promise((resolve) => {
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      img.onload = () => {
+        // Calcular dimensões mantendo proporção
+        const maxWidth = 1200;
+        const maxHeight = 1200;
+        let { width, height } = img;
+        
+        if (width > height) {
+          if (width > maxWidth) {
+            height = (height * maxWidth) / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = (width * maxHeight) / height;
+            height = maxHeight;
+          }
+        }
+        
+        canvas.width = width;
+        canvas.height = height;
+        
+        // Desenhar imagem redimensionada
+        ctx?.drawImage(img, 0, 0, width, height);
+        
+        // Converter para blob com qualidade 0.8
+        canvas.toBlob((blob) => {
+          if (blob) {
+            const compressedFile = new File([blob], file.name, {
+              type: 'image/jpeg',
+              lastModified: Date.now(),
+            });
+            resolve(compressedFile);
+          } else {
+            resolve(file);
+          }
+        }, 'image/jpeg', 0.8);
+      };
+      
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file || !user) return;
@@ -31,27 +79,38 @@ const ProfilePhotoUpload = ({ currentPhotoUrl, onPhotoChange }: ProfilePhotoUplo
       return;
     }
 
-    // Validar tamanho do arquivo (máximo 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      toast({
-        title: "Erro",
-        description: "A imagem deve ter no máximo 5MB.",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsUploading(true);
 
     try {
+      let fileToUpload = file;
+
+      // Se o arquivo for maior que 10MB, comprimir
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Comprimindo imagem...",
+          description: "Sua imagem está sendo otimizada para upload.",
+        });
+        fileToUpload = await compressImage(file);
+      }
+
+      // Verificar se ainda está muito grande após compressão
+      if (fileToUpload.size > 10 * 1024 * 1024) {
+        toast({
+          title: "Erro",
+          description: "Não foi possível reduzir a imagem para 10MB. Tente uma imagem menor.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       // Gerar nome único para o arquivo
-      const fileExt = file.name.split('.').pop();
+      const fileExt = fileToUpload.type === 'image/jpeg' ? 'jpg' : file.name.split('.').pop();
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
 
       // Upload do arquivo
       const { data, error } = await supabase.storage
         .from('profile-photos')
-        .upload(fileName, file);
+        .upload(fileName, fileToUpload);
 
       if (error) throw error;
 
@@ -154,7 +213,7 @@ const ProfilePhotoUpload = ({ currentPhotoUrl, onPhotoChange }: ProfilePhotoUplo
 
       <p className="text-xs text-gray-500 text-center">
         Formatos aceitos: JPG, PNG, GIF<br />
-        Tamanho máximo: 5MB
+        Tamanho máximo: 10MB (compressão automática)
       </p>
     </div>
   );
