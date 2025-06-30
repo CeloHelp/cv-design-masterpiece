@@ -6,12 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useCVContext } from '@/contexts/CVContext';
 import { User } from 'lucide-react';
+import ProfilePhotoUpload from './ProfilePhotoUpload';
 
 const PersonalDataForm = () => {
   const { personalData, updatePersonalData } = useCVContext();
 
   const handleChange = (field: string, value: string) => {
     updatePersonalData({ [field]: value });
+  };
+
+  const handlePhotoChange = (url: string | null) => {
+    updatePersonalData({ profilePhotoUrl: url || '' });
   };
 
   return (
@@ -22,7 +27,14 @@ const PersonalDataForm = () => {
           Dados Pessoais
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-6">
+        <div className="flex justify-center">
+          <ProfilePhotoUpload
+            currentPhotoUrl={personalData.profilePhotoUrl}
+            onPhotoChange={handlePhotoChange}
+          />
+        </div>
+
         <div>
           <Label htmlFor="fullName">Nome Completo</Label>
           <Input

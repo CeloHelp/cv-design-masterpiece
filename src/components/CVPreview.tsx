@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { FileText } from "lucide-react";
@@ -30,11 +29,24 @@ const CVPreview: React.FC = () => {
       <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="border-b-4 border-blue-600 pb-6 mb-6">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">{personalData.fullName || 'Seu Nome'}</h1>
-          <div className="flex flex-wrap gap-4 text-gray-600">
-            {personalData.email && <span>📧 {personalData.email}</span>}
-            {personalData.phone && <span>📞 {personalData.phone}</span>}
-            {personalData.address && <span>📍 {personalData.address}</span>}
+          <div className="flex items-start gap-6">
+            {personalData.profilePhotoUrl && (
+              <div className="flex-shrink-0">
+                <img
+                  src={personalData.profilePhotoUrl}
+                  alt="Foto de perfil"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-blue-600"
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">{personalData.fullName || 'Seu Nome'}</h1>
+              <div className="flex flex-wrap gap-4 text-gray-600">
+                {personalData.email && <span>📧 {personalData.email}</span>}
+                {personalData.phone && <span>📞 {personalData.phone}</span>}
+                {personalData.address && <span>📍 {personalData.address}</span>}
+              </div>
+            </div>
           </div>
         </div>
 
@@ -130,6 +142,15 @@ const CVPreview: React.FC = () => {
       <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto border" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">
+          {personalData.profilePhotoUrl && (
+            <div className="mb-4">
+              <img
+                src={personalData.profilePhotoUrl}
+                alt="Foto de perfil"
+                className="w-20 h-20 rounded-full object-cover mx-auto border-2 border-gray-800"
+              />
+            </div>
+          )}
           <h1 className="text-3xl font-serif font-bold text-gray-800 mb-2">{personalData.fullName || 'Seu Nome'}</h1>
           <div className="text-gray-600 space-y-1">
             {personalData.email && <div>{personalData.email}</div>}
@@ -220,11 +241,24 @@ const CVPreview: React.FC = () => {
       <div className="cv-preview bg-gradient-to-br from-purple-50 to-pink-50 p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg mb-6">
-          <h1 className="text-4xl font-bold mb-2">{personalData.fullName || 'Seu Nome'}</h1>
-          <div className="grid grid-cols-1 gap-2 text-purple-100">
-            {personalData.email && <div>✉️ {personalData.email}</div>}
-            {personalData.phone && <div>📱 {personalData.phone}</div>}
-            {personalData.address && <div>🌍 {personalData.address}</div>}
+          <div className="flex items-center gap-4">
+            {personalData.profilePhotoUrl && (
+              <div className="flex-shrink-0">
+                <img
+                  src={personalData.profilePhotoUrl}
+                  alt="Foto de perfil"
+                  className="w-20 h-20 rounded-full object-cover border-4 border-white"
+                />
+              </div>
+            )}
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2">{personalData.fullName || 'Seu Nome'}</h1>
+              <div className="grid grid-cols-1 gap-2 text-purple-100">
+                {personalData.email && <div>✉️ {personalData.email}</div>}
+                {personalData.phone && <div>📱 {personalData.phone}</div>}
+                {personalData.address && <div>🌍 {personalData.address}</div>}
+              </div>
+            </div>
           </div>
         </div>
 

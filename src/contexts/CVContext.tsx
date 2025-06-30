@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 interface PersonalData {
@@ -7,6 +6,7 @@ interface PersonalData {
   phone: string;
   address: string;
   professionalSummary: string;
+  profilePhotoUrl?: string;
 }
 
 interface Experience {
@@ -75,6 +75,7 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
     phone: '',
     address: '',
     professionalSummary: '',
+    profilePhotoUrl: '',
   });
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -115,6 +116,7 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
       phone: '',
       address: '',
       professionalSummary: '',
+      profilePhotoUrl: '',
     });
     setExperiences([]);
     setEducation([]);
