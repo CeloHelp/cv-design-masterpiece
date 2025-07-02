@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Download, FileText, Save } from "lucide-react";
@@ -67,6 +66,12 @@ const CVGenerator: React.FC = () => {
 
   const downloadPDF = async () => {
     console.log('Download PDF button clicked');
+    console.log('Current state:', { 
+      hasName: !!personalData.fullName, 
+      hasEmail: !!personalData.email, 
+      hasDesign: !!selectedDesign,
+      isGenerating 
+    });
     
     if (!personalData.fullName || !personalData.email || !selectedDesign) {
       toast({
@@ -77,8 +82,15 @@ const CVGenerator: React.FC = () => {
       return;
     }
 
+    if (isGenerating) {
+      console.log('Already generating PDF, skipping...');
+      return;
+    }
+
     // Verificar se o elemento existe antes de tentar gerar o PDF
     const previewElement = document.getElementById('cv-preview-content');
+    console.log('Preview element found:', !!previewElement);
+    
     if (!previewElement) {
       console.error('CV preview element not found');
       toast({
@@ -89,10 +101,22 @@ const CVGenerator: React.FC = () => {
       return;
     }
 
+    // Verificar se o elemento tem conteúdo
+    console.log('Element dimensions:', {
+      width: previewElement.offsetWidth,
+      height: previewElement.offsetHeight,
+      scrollWidth: previewElement.scrollWidth,
+      scrollHeight: previewElement.scrollHeight
+    });
+
     const fileName = `CV_${personalData.fullName.replace(/\s+/g, '_')}`;
     console.log('Generating PDF with filename:', fileName);
     
-    await generatePDF('cv-preview-content', fileName);
+    try {
+      await generatePDF('cv-preview-content', fileName);
+    } catch (error) {
+      console.error('Error in downloadPDF:', error);
+    }
   };
 
   const hasValidData = personalData.fullName || personalData.email || 

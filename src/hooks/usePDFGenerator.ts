@@ -28,23 +28,28 @@ export const usePDFGenerator = () => {
       });
 
       // Aguardar um pouco para garantir que o toast seja exibido
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 100));
 
       // Capturar o elemento como canvas com configurações otimizadas
       const canvas = await html2canvas(element, {
-        scale: 1.5,
+        scale: 2,
         useCORS: true,
         allowTaint: false,
         backgroundColor: '#ffffff',
-        logging: false,
+        logging: true,
         width: element.scrollWidth,
-        height: element.scrollHeight
+        height: element.scrollHeight,
+        scrollX: 0,
+        scrollY: 0,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight
       });
 
-      console.log('Canvas generated successfully');
+      console.log('Canvas generated successfully, dimensions:', canvas.width, 'x', canvas.height);
 
       // Criar PDF
       const imgData = canvas.toDataURL('image/png', 1.0);
+      console.log('Image data generated, length:', imgData.length);
       
       // Configurações do PDF para A4
       const pdf = new jsPDF({
@@ -56,6 +61,8 @@ export const usePDFGenerator = () => {
       // Dimensões da página A4 em mm
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      console.log('PDF page dimensions:', pageWidth, 'x', pageHeight);
       
       // Calcular proporções mantendo aspecto
       const canvasWidth = canvas.width;
@@ -69,14 +76,32 @@ export const usePDFGenerator = () => {
       const x = (pageWidth - imgWidth) / 2;
       const y = (pageHeight - imgHeight) / 2;
 
-      console.log('Adding image to PDF...');
+      console.log('Adding image to PDF with dimensions:', imgWidth, 'x', imgHeight, 'at position:', x, ',', y);
       
       pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
       
-      console.log('Saving PDF...');
+      console.log('Attempting to save PDF as:', `${fileName}.pdf`);
       
-      // Baixar o PDF
-      pdf.save(`${fileName}.pdf`);
+      // Tentar diferentes métodos de download
+      try {
+        // Método 1: save() direto
+        pdf.save(`${fileName}.pdf`);
+        console.log('PDF saved successfully using save() method');
+      } catch (saveError) {
+        console.log('Direct save failed, trying blob method:', saveError);
+        
+        // Método 2: blob + download
+        const pdfBlob = pdf.output('blob');
+        const url = URL.createObjectURL(pdfBlob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${fileName}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        console.log('PDF downloaded successfully using blob method');
+      }
 
       toast({
         title: "PDF gerado com sucesso!",
@@ -87,9 +112,16 @@ export const usePDFGenerator = () => {
 
     } catch (error) {
       console.error('Erro detalhado ao gerar PDF:', error);
+      
+      // Log adicional para debug
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+      }
+      
       toast({
         title: "Erro ao gerar PDF",
-        description: "Não foi possível gerar o PDF. Verifique o console para mais detalhes.",
+        description: `Erro: ${error instanceof Error ? error.message : 'Erro desconhecido'}. Verifique o console para mais detalhes.`,
         variant: "destructive"
       });
     } finally {
