@@ -5,10 +5,12 @@ import { Download, FileText, Eye, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCVs, CVData } from '@/hooks/useCVs';
 import { useCVContext } from '@/contexts/CVContext';
+import { usePDFGenerator } from '@/hooks/usePDFGenerator';
 
 const CVGenerator: React.FC = () => {
   const { toast } = useToast();
   const { saveCV, isSaving } = useCVs();
+  const { generatePDF, isGenerating } = usePDFGenerator();
   const { 
     currentCVId,
     personalData,
@@ -63,7 +65,7 @@ const CVGenerator: React.FC = () => {
     }
   };
 
-  const downloadPDF = () => {
+  const downloadPDF = async () => {
     if (!personalData.fullName || !personalData.email || !selectedDesign) {
       toast({
         title: "Campos obrigatórios",
@@ -73,17 +75,8 @@ const CVGenerator: React.FC = () => {
       return;
     }
 
-    toast({
-      title: "Download iniciado!",
-      description: "Seu currículo em PDF está sendo preparado...",
-    });
-
-    setTimeout(() => {
-      toast({
-        title: "PDF pronto!",
-        description: "Seu currículo foi baixado com sucesso.",
-      });
-    }, 2000);
+    const fileName = `CV_${personalData.fullName.replace(/\s+/g, '_')}`;
+    await generatePDF('cv-preview-content', fileName);
   };
 
   const hasValidData = personalData.fullName || personalData.email || 
@@ -117,9 +110,10 @@ const CVGenerator: React.FC = () => {
             onClick={downloadPDF}
             variant="outline" 
             className="w-full"
+            disabled={isGenerating}
           >
             <Download className="w-5 h-5 mr-2" />
-            Baixar PDF
+            {isGenerating ? 'Gerando PDF...' : 'Baixar PDF'}
           </Button>
         </>
       )}

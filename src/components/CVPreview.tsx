@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { FileText } from "lucide-react";
@@ -26,7 +27,7 @@ const CVPreview: React.FC = () => {
 
   if (selectedDesign === 'modern') {
     return (
-      <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
+      <div id="cv-preview-content" className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="border-b-4 border-blue-600 pb-6 mb-6">
           <div className="flex items-start gap-6">
@@ -139,7 +140,7 @@ const CVPreview: React.FC = () => {
 
   if (selectedDesign === 'classic') {
     return (
-      <div className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto border" style={{ minHeight: '297mm', width: '210mm' }}>
+      <div id="cv-preview-content" className="cv-preview bg-white p-8 shadow-lg max-w-4xl mx-auto border" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="text-center border-b-2 border-gray-800 pb-4 mb-6">
           {personalData.profilePhotoUrl && (
@@ -238,7 +239,7 @@ const CVPreview: React.FC = () => {
 
   if (selectedDesign === 'creative') {
     return (
-      <div className="cv-preview bg-gradient-to-br from-purple-50 to-pink-50 p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
+      <div id="cv-preview-content" className="cv-preview bg-gradient-to-br from-purple-50 to-pink-50 p-8 shadow-lg max-w-4xl mx-auto" style={{ minHeight: '297mm', width: '210mm' }}>
         {/* Header */}
         <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-lg mb-6">
           <div className="flex items-center gap-4">
