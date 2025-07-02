@@ -87,19 +87,27 @@ const ExperienceForm = () => {
               <div>
                 <Label>Data de Início</Label>
                 <Input
-                  type="month"
+                  type="text"
                   value={exp.startDate}
                   onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
+                  placeholder="Ex: 01/2023 ou 15/01/2023"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato: MM/AAAA ou DD/MM/AAAA
+                </p>
               </div>
               <div>
                 <Label>Data de Fim</Label>
                 <Input
-                  type="month"
+                  type="text"
                   value={exp.endDate}
                   onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
                   disabled={exp.current}
+                  placeholder="Ex: 12/2023 ou 30/12/2023"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato: MM/AAAA ou DD/MM/AAAA
+                </p>
               </div>
             </div>
             

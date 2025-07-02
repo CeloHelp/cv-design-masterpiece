@@ -95,19 +95,27 @@ const EducationForm = () => {
               <div>
                 <Label>Data de Início</Label>
                 <Input
-                  type="month"
+                  type="text"
                   value={edu.startDate}
                   onChange={(e) => updateEducationItem(edu.id, 'startDate', e.target.value)}
+                  placeholder="Ex: 02/2020 ou 15/02/2020"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato: MM/AAAA ou DD/MM/AAAA
+                </p>
               </div>
               <div>
                 <Label>Data de Conclusão</Label>
                 <Input
-                  type="month"
+                  type="text"
                   value={edu.endDate}
                   onChange={(e) => updateEducationItem(edu.id, 'endDate', e.target.value)}
                   disabled={edu.current}
+                  placeholder="Ex: 12/2024 ou 30/12/2024"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Formato: MM/AAAA ou DD/MM/AAAA
+                </p>
               </div>
             </div>
             
