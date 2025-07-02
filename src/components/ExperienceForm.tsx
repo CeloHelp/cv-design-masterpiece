@@ -26,6 +26,7 @@ const ExperienceForm = () => {
   };
 
   const updateExperience = (id: string, field: string, value: string | boolean) => {
+    console.log(`Updating experience ${id}, field: ${field}, value:`, value);
     const updated = experiences.map(exp => 
       exp.id === id ? { ...exp, [field]: value } : exp
     );
@@ -34,6 +35,11 @@ const ExperienceForm = () => {
 
   const removeExperience = (id: string) => {
     updateExperiences(experiences.filter(exp => exp.id !== id));
+  };
+
+  const handleDateChange = (id: string, field: string, value: string) => {
+    console.log(`Date input changed - ID: ${id}, Field: ${field}, Value: "${value}"`);
+    updateExperience(id, field, value);
   };
 
   return (
@@ -89,11 +95,12 @@ const ExperienceForm = () => {
                 <Input
                   type="text"
                   value={exp.startDate}
-                  onChange={(e) => updateExperience(exp.id, 'startDate', e.target.value)}
-                  placeholder="Ex: 01/2023 ou 15/01/2023"
+                  onChange={(e) => handleDateChange(exp.id, 'startDate', e.target.value)}
+                  placeholder="Digite: 15/01/2023 ou 01/2023"
+                  className="w-full"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Formato: MM/AAAA ou DD/MM/AAAA
+                  ✓ Aceita: DD/MM/AAAA ou MM/AAAA
                 </p>
               </div>
               <div>
@@ -101,12 +108,13 @@ const ExperienceForm = () => {
                 <Input
                   type="text"
                   value={exp.endDate}
-                  onChange={(e) => updateExperience(exp.id, 'endDate', e.target.value)}
+                  onChange={(e) => handleDateChange(exp.id, 'endDate', e.target.value)}
                   disabled={exp.current}
-                  placeholder="Ex: 12/2023 ou 30/12/2023"
+                  placeholder="Digite: 30/12/2023 ou 12/2023"
+                  className="w-full"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Formato: MM/AAAA ou DD/MM/AAAA
+                  ✓ Aceita: DD/MM/AAAA ou MM/AAAA
                 </p>
               </div>
             </div>
