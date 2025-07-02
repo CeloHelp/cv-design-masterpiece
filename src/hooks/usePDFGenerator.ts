@@ -9,58 +9,71 @@ export const usePDFGenerator = () => {
   const { toast } = useToast();
 
   const generatePDF = async (elementId: string, fileName: string) => {
+    console.log('Starting PDF generation for element:', elementId);
+    
     try {
       setIsGenerating(true);
       
       const element = document.getElementById(elementId);
       if (!element) {
+        console.error('Element not found:', elementId);
         throw new Error('Elemento não encontrado');
       }
+
+      console.log('Element found, generating canvas...');
 
       toast({
         title: "Gerando PDF...",
         description: "Por favor, aguarde enquanto preparamos seu currículo.",
       });
 
-      // Capturar o elemento como canvas
+      // Aguardar um pouco para garantir que o toast seja exibido
+      await new Promise(resolve => setTimeout(resolve, 500));
+
+      // Capturar o elemento como canvas com configurações otimizadas
       const canvas = await html2canvas(element, {
-        scale: 2, // Melhor qualidade
+        scale: 1.5,
         useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#ffffff'
+        allowTaint: false,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: element.scrollWidth,
+        height: element.scrollHeight
       });
 
+      console.log('Canvas generated successfully');
+
       // Criar PDF
-      const imgData = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      
+      // Configurações do PDF para A4
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
 
-      // Calcular dimensões para ajustar à página A4
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const canvasAspectRatio = canvas.height / canvas.width;
-      const pdfAspectRatio = pdfHeight / pdfWidth;
+      // Dimensões da página A4 em mm
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      
+      // Calcular proporções mantendo aspecto
+      const canvasWidth = canvas.width;
+      const canvasHeight = canvas.height;
+      const ratio = Math.min(pageWidth / (canvasWidth * 0.264583), pageHeight / (canvasHeight * 0.264583));
+      
+      const imgWidth = canvasWidth * 0.264583 * ratio;
+      const imgHeight = canvasHeight * 0.264583 * ratio;
+      
+      // Centralizar na página
+      const x = (pageWidth - imgWidth) / 2;
+      const y = (pageHeight - imgHeight) / 2;
 
-      let imgWidth, imgHeight;
-      let xOffset = 0;
-      let yOffset = 0;
-
-      if (canvasAspectRatio > pdfAspectRatio) {
-        // Canvas é mais alto proporcionalmente
-        imgHeight = pdfHeight;
-        imgWidth = pdfHeight / canvasAspectRatio;
-        xOffset = (pdfWidth - imgWidth) / 2;
-      } else {
-        // Canvas é mais largo proporcionalmente
-        imgWidth = pdfWidth;
-        imgHeight = pdfWidth * canvasAspectRatio;
-        yOffset = (pdfHeight - imgHeight) / 2;
-      }
-
-      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight);
+      console.log('Adding image to PDF...');
+      
+      pdf.addImage(imgData, 'PNG', x, y, imgWidth, imgHeight);
+      
+      console.log('Saving PDF...');
       
       // Baixar o PDF
       pdf.save(`${fileName}.pdf`);
@@ -70,11 +83,13 @@ export const usePDFGenerator = () => {
         description: "Seu currículo foi baixado como PDF.",
       });
 
+      console.log('PDF generation completed successfully');
+
     } catch (error) {
-      console.error('Erro ao gerar PDF:', error);
+      console.error('Erro detalhado ao gerar PDF:', error);
       toast({
         title: "Erro ao gerar PDF",
-        description: "Não foi possível gerar o PDF. Tente novamente.",
+        description: "Não foi possível gerar o PDF. Verifique o console para mais detalhes.",
         variant: "destructive"
       });
     } finally {

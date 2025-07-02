@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Eye, Save } from "lucide-react";
+import { Download, FileText, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCVs, CVData } from '@/hooks/useCVs';
 import { useCVContext } from '@/contexts/CVContext';
@@ -66,6 +66,8 @@ const CVGenerator: React.FC = () => {
   };
 
   const downloadPDF = async () => {
+    console.log('Download PDF button clicked');
+    
     if (!personalData.fullName || !personalData.email || !selectedDesign) {
       toast({
         title: "Campos obrigatórios",
@@ -75,7 +77,21 @@ const CVGenerator: React.FC = () => {
       return;
     }
 
+    // Verificar se o elemento existe antes de tentar gerar o PDF
+    const previewElement = document.getElementById('cv-preview-content');
+    if (!previewElement) {
+      console.error('CV preview element not found');
+      toast({
+        title: "Erro",
+        description: "Elemento de preview não encontrado. Tente recarregar a página.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     const fileName = `CV_${personalData.fullName.replace(/\s+/g, '_')}`;
+    console.log('Generating PDF with filename:', fileName);
+    
     await generatePDF('cv-preview-content', fileName);
   };
 
