@@ -24,6 +24,7 @@ interface Experience {
   startDate: string;
   endDate: string;
   current: boolean;
+  isPersonalProject: boolean;
   problem: string;
   solution: string;
   technologies: string;

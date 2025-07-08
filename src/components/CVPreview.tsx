@@ -81,6 +81,7 @@ const CVPreview: React.FC = () => {
                     </div>
                     <span className="text-gray-500 text-sm">
                       {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
+                      {exp.isPersonalProject && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Projeto Pessoal</span>}
                     </span>
                   </div>
                   <div className="space-y-2 text-sm">
@@ -200,6 +201,7 @@ const CVPreview: React.FC = () => {
                     <p className="text-gray-700 italic">{exp.company || 'Empresa'}</p>
                     <p className="text-gray-600 text-sm">
                       {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
+                      {exp.isPersonalProject && <span className="ml-2 text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded">Projeto Pessoal</span>}
                     </p>
                   </div>
                   <div className="space-y-1 text-sm">
@@ -324,6 +326,7 @@ const CVPreview: React.FC = () => {
                       </div>
                       <span className="bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-xs">
                         {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
+                        {exp.isPersonalProject && <span className="ml-1 bg-pink-100 text-pink-700 px-2 py-1 rounded-full">Projeto Pessoal</span>}
                       </span>
                     </div>
                     <div className="space-y-1 text-sm">

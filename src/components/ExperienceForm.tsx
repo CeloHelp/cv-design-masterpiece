@@ -20,6 +20,7 @@ const ExperienceForm = () => {
       startDate: '',
       endDate: '',
       current: false,
+      isPersonalProject: false,
       problem: '',
       solution: '',
       technologies: '',
@@ -122,13 +123,24 @@ const ExperienceForm = () => {
               </div>
             </div>
             
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id={`current-${exp.id}`}
-                checked={exp.current}
-                onCheckedChange={(checked) => updateExperience(exp.id, 'current', checked as boolean)}
-              />
-              <Label htmlFor={`current-${exp.id}`}>Trabalho atual</Label>
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`personal-${exp.id}`}
+                  checked={exp.isPersonalProject}
+                  onCheckedChange={(checked) => updateExperience(exp.id, 'isPersonalProject', checked as boolean)}
+                />
+                <Label htmlFor={`personal-${exp.id}`}>Projeto pessoal</Label>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id={`current-${exp.id}`}
+                  checked={exp.current}
+                  onCheckedChange={(checked) => updateExperience(exp.id, 'current', checked as boolean)}
+                />
+                <Label htmlFor={`current-${exp.id}`}>Trabalho atual</Label>
+              </div>
             </div>
             
             <div>
