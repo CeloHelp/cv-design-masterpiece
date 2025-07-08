@@ -7,6 +7,7 @@ import { useCVContext } from '@/contexts/CVContext';
 const CVPreview: React.FC = () => {
   const {
     personalData,
+    objective,
     experiences,
     education,
     skills,
@@ -46,16 +47,23 @@ const CVPreview: React.FC = () => {
                 {personalData.email && <span>📧 {personalData.email}</span>}
                 {personalData.phone && <span>📞 {personalData.phone}</span>}
                 {personalData.address && <span>📍 {personalData.address}</span>}
+                {personalData.linkedin && <span>💼 LinkedIn</span>}
+                {personalData.github && <span>💻 GitHub</span>}
+                {personalData.portfolio && <span>🌐 Portfólio</span>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Professional Summary */}
-        {personalData.professionalSummary && (
+        {/* Objective */}
+        {(objective.position || objective.stack || objective.goal) && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-blue-600 mb-3 border-b border-gray-300 pb-1">Resumo Profissional</h2>
-            <p className="text-gray-700 leading-relaxed">{personalData.professionalSummary}</p>
+            <h2 className="text-2xl font-bold text-blue-600 mb-3 border-b border-gray-300 pb-1">Objetivo Profissional</h2>
+            <div className="space-y-2">
+              {objective.position && <p><strong>Cargo:</strong> {objective.position}</p>}
+              {objective.stack && <p><strong>Stack:</strong> {objective.stack}</p>}
+              {objective.goal && <p className="text-gray-700">{objective.goal}</p>}
+            </div>
           </div>
         )}
 
@@ -65,7 +73,7 @@ const CVPreview: React.FC = () => {
             <h2 className="text-2xl font-bold text-blue-600 mb-3 border-b border-gray-300 pb-1">Experiência Profissional</h2>
             {experiences.map((exp) => (
               (exp.company || exp.position) && (
-                <div key={exp.id} className="mb-4">
+                <div key={exp.id} className="mb-6">
                   <div className="flex justify-between items-start mb-2">
                     <div>
                       <h3 className="text-lg font-semibold text-gray-800">{exp.position || 'Cargo'}</h3>
@@ -75,7 +83,12 @@ const CVPreview: React.FC = () => {
                       {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
                     </span>
                   </div>
-                  {exp.description && <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>}
+                  <div className="space-y-2 text-sm">
+                    {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                    {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                    {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                    {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                  </div>
                 </div>
               )
             ))}
@@ -157,14 +170,21 @@ const CVPreview: React.FC = () => {
             {personalData.email && <div>{personalData.email}</div>}
             {personalData.phone && <div>{personalData.phone}</div>}
             {personalData.address && <div>{personalData.address}</div>}
+            {personalData.linkedin && <div>LinkedIn</div>}
+            {personalData.github && <div>GitHub</div>}
+            {personalData.portfolio && <div>Portfólio</div>}
           </div>
         </div>
 
-        {/* Professional Summary */}
-        {personalData.professionalSummary && (
+        {/* Objective */}
+        {(objective.position || objective.stack || objective.goal) && (
           <div className="mb-6">
             <h2 className="text-xl font-serif font-bold text-gray-800 mb-3 uppercase tracking-wider">Objetivo Profissional</h2>
-            <p className="text-gray-700 leading-relaxed text-justify">{personalData.professionalSummary}</p>
+            <div className="space-y-2 text-gray-700">
+              {objective.position && <p><strong>Cargo:</strong> {objective.position}</p>}
+              {objective.stack && <p><strong>Stack:</strong> {objective.stack}</p>}
+              {objective.goal && <p className="text-justify">{objective.goal}</p>}
+            </div>
           </div>
         )}
 
@@ -182,7 +202,12 @@ const CVPreview: React.FC = () => {
                       {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
                     </p>
                   </div>
-                  {exp.description && <p className="text-gray-700 text-sm leading-relaxed text-justify">{exp.description}</p>}
+                  <div className="space-y-1 text-sm">
+                    {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                    {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                    {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                    {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                  </div>
                 </div>
               )
             ))}
@@ -258,20 +283,25 @@ const CVPreview: React.FC = () => {
                 {personalData.email && <div>✉️ {personalData.email}</div>}
                 {personalData.phone && <div>📱 {personalData.phone}</div>}
                 {personalData.address && <div>🌍 {personalData.address}</div>}
+                {personalData.linkedin && <div>💼 LinkedIn</div>}
+                {personalData.github && <div>💻 GitHub</div>}
+                {personalData.portfolio && <div>🌐 Portfólio</div>}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Professional Summary */}
-        {personalData.professionalSummary && (
+        {/* Objective */}
+        {(objective.position || objective.stack || objective.goal) && (
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-purple-700 mb-3 flex items-center">
               <span className="w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center mr-3 text-sm">💼</span>
-              Sobre Mim
+              Objetivo Profissional
             </h2>
-            <div className="bg-white p-4 rounded-lg shadow-sm">
-              <p className="text-gray-700 leading-relaxed">{personalData.professionalSummary}</p>
+            <div className="bg-white p-4 rounded-lg shadow-sm space-y-2">
+              {objective.position && <p><strong>Cargo:</strong> {objective.position}</p>}
+              {objective.stack && <p><strong>Stack:</strong> {objective.stack}</p>}
+              {objective.goal && <p className="text-gray-700">{objective.goal}</p>}
             </div>
           </div>
         )}
@@ -296,7 +326,12 @@ const CVPreview: React.FC = () => {
                         {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
                       </span>
                     </div>
-                    {exp.description && <p className="text-gray-700 text-sm leading-relaxed">{exp.description}</p>}
+                    <div className="space-y-1 text-sm">
+                      {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                      {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                      {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                      {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                    </div>
                   </div>
                 )
               ))}

@@ -5,8 +5,16 @@ interface PersonalData {
   email: string;
   phone: string;
   address: string;
-  professionalSummary: string;
+  linkedin: string;
+  github: string;
+  portfolio: string;
   profilePhotoUrl?: string;
+}
+
+interface Objective {
+  position: string;
+  stack: string;
+  goal: string;
 }
 
 interface Experience {
@@ -16,7 +24,10 @@ interface Experience {
   startDate: string;
   endDate: string;
   current: boolean;
-  description: string;
+  problem: string;
+  solution: string;
+  technologies: string;
+  impact: string;
 }
 
 interface Education {
@@ -38,6 +49,7 @@ interface Language {
 interface CVContextType {
   currentCVId: string | null;
   personalData: PersonalData;
+  objective: Objective;
   experiences: Experience[];
   education: Education[];
   skills: string;
@@ -45,6 +57,7 @@ interface CVContextType {
   selectedDesign: string;
   setCurrentCVId: (id: string | null) => void;
   updatePersonalData: (data: Partial<PersonalData>) => void;
+  updateObjective: (objective: Partial<Objective>) => void;
   updateExperiences: (experiences: Experience[]) => void;
   updateEducation: (education: Education[]) => void;
   updateSkills: (skills: string) => void;
@@ -74,8 +87,16 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
     email: '',
     phone: '',
     address: '',
-    professionalSummary: '',
+    linkedin: '',
+    github: '',
+    portfolio: '',
     profilePhotoUrl: '',
+  });
+
+  const [objective, setObjective] = useState<Objective>({
+    position: '',
+    stack: '',
+    goal: '',
   });
 
   const [experiences, setExperiences] = useState<Experience[]>([]);
@@ -86,6 +107,10 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
 
   const updatePersonalData = (data: Partial<PersonalData>) => {
     setPersonalData(prev => ({ ...prev, ...data }));
+  };
+
+  const updateObjective = (data: Partial<Objective>) => {
+    setObjective(prev => ({ ...prev, ...data }));
   };
 
   const updateExperiences = (newExperiences: Experience[]) => {
@@ -115,8 +140,15 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
       email: '',
       phone: '',
       address: '',
-      professionalSummary: '',
+      linkedin: '',
+      github: '',
+      portfolio: '',
       profilePhotoUrl: '',
+    });
+    setObjective({
+      position: '',
+      stack: '',
+      goal: '',
     });
     setExperiences([]);
     setEducation([]);
@@ -130,6 +162,7 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
       value={{
         currentCVId,
         personalData,
+        objective,
         experiences,
         education,
         skills,
@@ -137,6 +170,7 @@ export const CVProvider: React.FC<CVProviderProps> = ({ children }) => {
         selectedDesign,
         setCurrentCVId,
         updatePersonalData,
+        updateObjective,
         updateExperiences,
         updateEducation,
         updateSkills,

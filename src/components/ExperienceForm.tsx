@@ -20,7 +20,10 @@ const ExperienceForm = () => {
       startDate: '',
       endDate: '',
       current: false,
-      description: ''
+      problem: '',
+      solution: '',
+      technologies: '',
+      impact: ''
     };
     updateExperiences([...experiences, newExperience]);
   };
@@ -129,12 +132,41 @@ const ExperienceForm = () => {
             </div>
             
             <div>
-              <Label>Descrição</Label>
+              <Label>Qual era o problema, dor ou necessidade antes da sua atuação?</Label>
               <Textarea
-                value={exp.description}
-                onChange={(e) => updateExperience(exp.id, 'description', e.target.value)}
-                placeholder="Descreva suas responsabilidades e conquistas"
-                rows={3}
+                value={exp.problem}
+                onChange={(e) => updateExperience(exp.id, 'problem', e.target.value)}
+                placeholder="Descreva qual problema ou necessidade existia"
+                rows={2}
+              />
+            </div>
+            
+            <div>
+              <Label>O que você fez para resolver?</Label>
+              <Textarea
+                value={exp.solution}
+                onChange={(e) => updateExperience(exp.id, 'solution', e.target.value)}
+                placeholder="Descreva as ações que você tomou"
+                rows={2}
+              />
+            </div>
+            
+            <div>
+              <Label>Quais tecnologias e ferramentas usou?</Label>
+              <Input
+                value={exp.technologies}
+                onChange={(e) => updateExperience(exp.id, 'technologies', e.target.value)}
+                placeholder="Ex: Java, Spring Boot, PostgreSQL, Docker..."
+              />
+            </div>
+            
+            <div>
+              <Label>Qual foi o impacto ou resultado da sua atuação?</Label>
+              <Textarea
+                value={exp.impact}
+                onChange={(e) => updateExperience(exp.id, 'impact', e.target.value)}
+                placeholder="Descreva os resultados obtidos"
+                rows={2}
               />
             </div>
           </div>

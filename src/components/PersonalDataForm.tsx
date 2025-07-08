@@ -77,13 +77,32 @@ const PersonalDataForm = () => {
         </div>
         
         <div>
-          <Label htmlFor="professionalSummary">Resumo Profissional</Label>
-          <Textarea
-            id="professionalSummary"
-            value={personalData.professionalSummary}
-            onChange={(e) => handleChange('professionalSummary', e.target.value)}
-            placeholder="Descreva brevemente sua experiência e objetivos profissionais"
-            rows={4}
+          <Label htmlFor="linkedin">LinkedIn</Label>
+          <Input
+            id="linkedin"
+            value={personalData.linkedin}
+            onChange={(e) => handleChange('linkedin', e.target.value)}
+            placeholder="https://linkedin.com/in/seu-perfil"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="github">GitHub</Label>
+          <Input
+            id="github"
+            value={personalData.github}
+            onChange={(e) => handleChange('github', e.target.value)}
+            placeholder="https://github.com/seu-usuario"
+          />
+        </div>
+        
+        <div>
+          <Label htmlFor="portfolio">Portfólio</Label>
+          <Input
+            id="portfolio"
+            value={personalData.portfolio}
+            onChange={(e) => handleChange('portfolio', e.target.value)}
+            placeholder="https://seu-portfolio.com"
           />
         </div>
       </CardContent>
