@@ -76,19 +76,19 @@ const ExperienceForm = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label>Empresa</Label>
+                <Label>{exp.isPersonalProject ? 'Nome do Projeto' : 'Empresa'}</Label>
                 <Input
                   value={exp.company}
                   onChange={(e) => updateExperience(exp.id, 'company', e.target.value)}
-                  placeholder="Nome da empresa"
+                  placeholder={exp.isPersonalProject ? 'Nome do seu projeto' : 'Nome da empresa'}
                 />
               </div>
               <div>
-                <Label>Cargo</Label>
+                <Label>{exp.isPersonalProject ? 'Função/Papel' : 'Cargo'}</Label>
                 <Input
                   value={exp.position}
                   onChange={(e) => updateExperience(exp.id, 'position', e.target.value)}
-                  placeholder="Seu cargo"
+                  placeholder={exp.isPersonalProject ? 'Seu papel no projeto' : 'Seu cargo'}
                 />
               </div>
             </div>
@@ -139,7 +139,9 @@ const ExperienceForm = () => {
                   checked={exp.current}
                   onCheckedChange={(checked) => updateExperience(exp.id, 'current', checked as boolean)}
                 />
-                <Label htmlFor={`current-${exp.id}`}>Trabalho atual</Label>
+                <Label htmlFor={`current-${exp.id}`}>
+                  {exp.isPersonalProject ? 'Atualmente trabalhando no projeto' : 'Trabalho atual'}
+                </Label>
               </div>
             </div>
             
