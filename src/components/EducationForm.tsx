@@ -57,9 +57,9 @@ const EducationForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative">
-        {/* Blur overlay */}
+        {/* Full screen overlay */}
         {focusedField && (
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-10 pointer-events-none rounded-lg" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 pointer-events-none" />
         )}
         
         <div className="space-y-6">
@@ -77,9 +77,9 @@ const EducationForm = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <div className={`transition-all duration-300 ${
+                <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-institution` ? 'opacity-30' : 'opacity-100'
-                } ${focusedField === `${edu.id}-institution` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                } ${focusedField === `${edu.id}-institution` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                   <Label>Instituição</Label>
                   <Input
                     value={edu.institution}
@@ -89,9 +89,9 @@ const EducationForm = () => {
                     placeholder="Nome da instituição"
                   />
                 </div>
-                <div className={`transition-all duration-300 ${
+                <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-degree` ? 'opacity-30' : 'opacity-100'
-                } ${focusedField === `${edu.id}-degree` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                } ${focusedField === `${edu.id}-degree` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                   <Label>Grau</Label>
                   <Input
                     value={edu.degree}
@@ -103,9 +103,9 @@ const EducationForm = () => {
                 </div>
               </div>
               
-              <div className={`transition-all duration-300 ${
+              <div className={`transition-all duration-500 ${
                 focusedField && focusedField !== `${edu.id}-field` ? 'opacity-30' : 'opacity-100'
-              } ${focusedField === `${edu.id}-field` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+              } ${focusedField === `${edu.id}-field` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                 <Label>Área de Estudo</Label>
                 <Input
                   value={edu.field}
@@ -117,9 +117,9 @@ const EducationForm = () => {
               </div>
               
               <div className="grid grid-cols-2 gap-4">
-                <div className={`transition-all duration-300 ${
+                <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-startDate` ? 'opacity-30' : 'opacity-100'
-                } ${focusedField === `${edu.id}-startDate` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                } ${focusedField === `${edu.id}-startDate` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                   <Label>Data de Início</Label>
                   <Input
                     type="text"
@@ -134,9 +134,9 @@ const EducationForm = () => {
                     ✓ Aceita: DD/MM/AAAA ou MM/AAAA
                   </p>
                 </div>
-                <div className={`transition-all duration-300 ${
+                <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-endDate` ? 'opacity-30' : 'opacity-100'
-                } ${focusedField === `${edu.id}-endDate` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                } ${focusedField === `${edu.id}-endDate` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                   <Label>Data de Conclusão</Label>
                   <Input
                     type="text"

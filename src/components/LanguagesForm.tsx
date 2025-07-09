@@ -47,17 +47,17 @@ const LanguagesForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative">
-        {/* Blur overlay */}
+        {/* Full screen overlay */}
         {focusedField && (
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-10 pointer-events-none rounded-lg" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 pointer-events-none" />
         )}
         
         <div className="space-y-4">
           {languages.map((lang) => (
             <div key={lang.id} className="flex gap-4 items-end">
-              <div className={`flex-1 transition-all duration-300 ${
+              <div className={`flex-1 transition-all duration-500 ${
                 focusedField && focusedField !== `${lang.id}-language` ? 'opacity-30' : 'opacity-100'
-              } ${focusedField === `${lang.id}-language` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+              } ${focusedField === `${lang.id}-language` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                 <Label>Idioma</Label>
                 <Input
                   value={lang.language}
@@ -67,9 +67,9 @@ const LanguagesForm = () => {
                   placeholder="Português, Inglês, etc."
                 />
               </div>
-              <div className={`flex-1 transition-all duration-300 ${
+              <div className={`flex-1 transition-all duration-500 ${
                 focusedField && focusedField !== `${lang.id}-proficiency` ? 'opacity-30' : 'opacity-100'
-              } ${focusedField === `${lang.id}-proficiency` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+              } ${focusedField === `${lang.id}-proficiency` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
                 <Label>Nível</Label>
                 <Select
                   value={lang.proficiency}

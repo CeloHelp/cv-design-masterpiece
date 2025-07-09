@@ -29,9 +29,9 @@ const PersonalDataForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative">
-        {/* Blur overlay */}
+        {/* Full screen overlay */}
         {focusedField && (
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-10 pointer-events-none rounded-lg" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 pointer-events-none" />
         )}
         
         <div className="space-y-6">
@@ -42,9 +42,9 @@ const PersonalDataForm = () => {
             />
           </div>
 
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'fullName' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'fullName' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'fullName' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="fullName">Nome Completo</Label>
             <Input
               id="fullName"
@@ -56,9 +56,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'email' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'email' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'email' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
@@ -71,9 +71,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'phone' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'phone' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'phone' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="phone">Telefone</Label>
             <Input
               id="phone"
@@ -85,9 +85,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'address' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'address' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'address' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="address">Endereço</Label>
             <Input
               id="address"
@@ -99,9 +99,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'linkedin' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'linkedin' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'linkedin' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="linkedin">LinkedIn</Label>
             <Input
               id="linkedin"
@@ -113,9 +113,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'github' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'github' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'github' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="github">GitHub</Label>
             <Input
               id="github"
@@ -127,9 +127,9 @@ const PersonalDataForm = () => {
             />
           </div>
           
-          <div className={`transition-all duration-300 ${
+          <div className={`transition-all duration-500 ${
             focusedField && focusedField !== 'portfolio' ? 'opacity-30' : 'opacity-100'
-          } ${focusedField === 'portfolio' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+          } ${focusedField === 'portfolio' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
             <Label htmlFor="portfolio">Portfólio</Label>
             <Input
               id="portfolio"

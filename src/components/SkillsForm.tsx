@@ -19,14 +19,14 @@ const SkillsForm = () => {
         </CardTitle>
       </CardHeader>
       <CardContent className="relative">
-        {/* Blur overlay */}
+        {/* Full screen overlay */}
         {focusedField && (
-          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-10 pointer-events-none rounded-lg" />
+          <div className="fixed inset-0 bg-black/30 backdrop-blur-[2px] z-40 pointer-events-none" />
         )}
         
-        <div className={`transition-all duration-300 ${
+        <div className={`transition-all duration-500 ${
           focusedField && focusedField !== 'skills' ? 'opacity-30' : 'opacity-100'
-        } ${focusedField === 'skills' ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+        } ${focusedField === 'skills' ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
           <Label htmlFor="skills">Habilidades (separadas por vírgula)</Label>
           <Textarea
             id="skills"
