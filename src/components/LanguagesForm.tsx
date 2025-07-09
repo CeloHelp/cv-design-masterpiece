@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -9,6 +10,7 @@ import { Languages, Plus, Trash2 } from 'lucide-react';
 
 const LanguagesForm = () => {
   const { languages, updateLanguages } = useCVContext();
+  const [focusedField, setFocusedField] = useState<string | null>(null);
 
   const addLanguage = () => {
     const newLanguage = {
@@ -44,44 +46,60 @@ const LanguagesForm = () => {
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {languages.map((lang) => (
-          <div key={lang.id} className="flex gap-4 items-end">
-            <div className="flex-1">
-              <Label>Idioma</Label>
-              <Input
-                value={lang.language}
-                onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
-                placeholder="Português, Inglês, etc."
-              />
-            </div>
-            <div className="flex-1">
-              <Label>Nível</Label>
-              <Select
-                value={lang.proficiency}
-                onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}
+      <CardContent className="relative">
+        {/* Blur overlay */}
+        {focusedField && (
+          <div className="absolute inset-0 bg-black/10 backdrop-blur-[2px] z-10 pointer-events-none rounded-lg" />
+        )}
+        
+        <div className="space-y-4">
+          {languages.map((lang) => (
+            <div key={lang.id} className="flex gap-4 items-end">
+              <div className={`flex-1 transition-all duration-300 ${
+                focusedField && focusedField !== `${lang.id}-language` ? 'opacity-30' : 'opacity-100'
+              } ${focusedField === `${lang.id}-language` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                <Label>Idioma</Label>
+                <Input
+                  value={lang.language}
+                  onChange={(e) => updateLanguage(lang.id, 'language', e.target.value)}
+                  onFocus={() => setFocusedField(`${lang.id}-language`)}
+                  onBlur={() => setFocusedField(null)}
+                  placeholder="Português, Inglês, etc."
+                />
+              </div>
+              <div className={`flex-1 transition-all duration-300 ${
+                focusedField && focusedField !== `${lang.id}-proficiency` ? 'opacity-30' : 'opacity-100'
+              } ${focusedField === `${lang.id}-proficiency` ? 'relative z-20 shadow-lg ring-2 ring-primary/50 rounded-lg p-3 bg-background' : ''}`}>
+                <Label>Nível</Label>
+                <Select
+                  value={lang.proficiency}
+                  onValueChange={(value) => updateLanguage(lang.id, 'proficiency', value)}
+                >
+                  <SelectTrigger
+                    onFocus={() => setFocusedField(`${lang.id}-proficiency`)}
+                    onBlur={() => setFocusedField(null)}
+                  >
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="básico">Básico</SelectItem>
+                    <SelectItem value="intermediário">Intermediário</SelectItem>
+                    <SelectItem value="avançado">Avançado</SelectItem>
+                    <SelectItem value="fluente">Fluente</SelectItem>
+                    <SelectItem value="nativo">Nativo</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => removeLanguage(lang.id)}
               >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="básico">Básico</SelectItem>
-                  <SelectItem value="intermediário">Intermediário</SelectItem>
-                  <SelectItem value="avançado">Avançado</SelectItem>
-                  <SelectItem value="fluente">Fluente</SelectItem>
-                  <SelectItem value="nativo">Nativo</SelectItem>
-                </SelectContent>
-              </Select>
+                <Trash2 className="w-4 h-4" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => removeLanguage(lang.id)}
-            >
-              <Trash2 className="w-4 h-4" />
-            </Button>
-          </div>
-        ))}
+          ))}
+        </div>
         
         {languages.length === 0 && (
           <div className="text-center py-8 text-gray-500">
