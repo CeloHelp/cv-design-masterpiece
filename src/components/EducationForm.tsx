@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useCVContext } from '@/contexts/CVContext';
 import { GraduationCap, Plus, Trash2 } from 'lucide-react';
 
@@ -15,6 +16,7 @@ const EducationForm = () => {
   const addEducation = () => {
     const newEducation = {
       id: Date.now().toString(),
+      type: 'academic', // academic, technical, certification
       institution: '',
       degree: '',
       field: '',
@@ -48,7 +50,7 @@ const EducationForm = () => {
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <GraduationCap className="w-5 h-5" />
-            Formação Acadêmica
+            Educação
           </div>
           <Button onClick={addEducation} size="sm">
             <Plus className="w-4 h-4 mr-2" />
@@ -66,7 +68,10 @@ const EducationForm = () => {
           {education.map((edu) => (
             <div key={edu.id} className="border rounded-lg p-4 space-y-4">
               <div className="flex justify-between items-start">
-                <h4 className="font-medium">Formação</h4>
+                <h4 className="font-medium">
+                  {edu.type === 'academic' ? 'Formação Acadêmica' : 
+                   edu.type === 'technical' ? 'Curso Técnico' : 'Certificação'}
+                </h4>
                 <Button
                   variant="ghost"
                   size="sm"
@@ -76,29 +81,64 @@ const EducationForm = () => {
                 </Button>
               </div>
               
+              <div className={`transition-all duration-500 ${
+                focusedField && focusedField !== `${edu.id}-type` ? 'opacity-30' : 'opacity-100'
+              } ${focusedField === `${edu.id}-type` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
+                <Label>Tipo</Label>
+                <Select 
+                  value={edu.type || 'academic'} 
+                  onValueChange={(value) => updateEducationItem(edu.id, 'type', value)}
+                  onOpenChange={(open) => {
+                    if (open) setFocusedField(`${edu.id}-type`);
+                    else setFocusedField(null);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecione o tipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="academic">Formação Acadêmica</SelectItem>
+                    <SelectItem value="technical">Curso Técnico</SelectItem>
+                    <SelectItem value="certification">Certificação</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-institution` ? 'opacity-30' : 'opacity-100'
                 } ${focusedField === `${edu.id}-institution` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
-                  <Label>Instituição</Label>
+                  <Label>
+                    {edu.type === 'academic' ? 'Instituição' : 
+                     edu.type === 'technical' ? 'Escola/Instituto' : 'Emissor'}
+                  </Label>
                   <Input
                     value={edu.institution}
                     onChange={(e) => updateEducationItem(edu.id, 'institution', e.target.value)}
                     onFocus={() => setFocusedField(`${edu.id}-institution`)}
                     onBlur={() => setFocusedField(null)}
-                    placeholder="Nome da instituição"
+                    placeholder={
+                      edu.type === 'academic' ? 'Nome da universidade' : 
+                      edu.type === 'technical' ? 'Nome da escola técnica' : 'Empresa/plataforma que emitiu'
+                    }
                   />
                 </div>
                 <div className={`transition-all duration-500 ${
                   focusedField && focusedField !== `${edu.id}-degree` ? 'opacity-30' : 'opacity-100'
                 } ${focusedField === `${edu.id}-degree` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
-                  <Label>Grau</Label>
+                  <Label>
+                    {edu.type === 'academic' ? 'Grau' : 
+                     edu.type === 'technical' ? 'Curso' : 'Certificação'}
+                  </Label>
                   <Input
                     value={edu.degree}
                     onChange={(e) => updateEducationItem(edu.id, 'degree', e.target.value)}
                     onFocus={() => setFocusedField(`${edu.id}-degree`)}
                     onBlur={() => setFocusedField(null)}
-                    placeholder="Bacharel, Mestrado, etc."
+                    placeholder={
+                      edu.type === 'academic' ? 'Bacharel, Mestrado, etc.' : 
+                      edu.type === 'technical' ? 'Nome do curso técnico' : 'Nome da certificação'
+                    }
                   />
                 </div>
               </div>
@@ -106,13 +146,19 @@ const EducationForm = () => {
               <div className={`transition-all duration-500 ${
                 focusedField && focusedField !== `${edu.id}-field` ? 'opacity-30' : 'opacity-100'
               } ${focusedField === `${edu.id}-field` ? 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl ring-2 ring-primary/50 rounded-lg p-6 bg-background w-96 max-w-[90vw]' : ''}`}>
-                <Label>Área de Estudo</Label>
+                <Label>
+                  {edu.type === 'academic' ? 'Área de Estudo' : 
+                   edu.type === 'technical' ? 'Área Técnica' : 'Área/Tecnologia'}
+                </Label>
                 <Input
                   value={edu.field}
                   onChange={(e) => updateEducationItem(edu.id, 'field', e.target.value)}
                   onFocus={() => setFocusedField(`${edu.id}-field`)}
                   onBlur={() => setFocusedField(null)}
-                  placeholder="Área de estudo"
+                  placeholder={
+                    edu.type === 'academic' ? 'Ex: Ciência da Computação' : 
+                    edu.type === 'technical' ? 'Ex: Informática, Eletrônica' : 'Ex: React, AWS, Scrum'
+                  }
                 />
               </div>
               
@@ -169,8 +215,8 @@ const EducationForm = () => {
         {education.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             <GraduationCap className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-            <p>Nenhuma formação adicionada</p>
-            <p className="text-sm">Clique em "Adicionar" para começar</p>
+            <p>Nenhuma educação adicionada</p>
+            <p className="text-sm">Adicione formações acadêmicas, cursos técnicos ou certificações</p>
           </div>
         )}
       </CardContent>

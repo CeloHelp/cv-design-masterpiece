@@ -33,6 +33,7 @@ interface Experience {
 
 interface Education {
   id: string;
+  type: string; // academic, technical, certification
   institution: string;
   degree: string;
   field: string;
