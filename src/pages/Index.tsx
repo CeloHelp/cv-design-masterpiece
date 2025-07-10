@@ -6,6 +6,7 @@ import CVPreview from "@/components/CVPreview";
 import SavedCVs from "@/components/SavedCVs";
 import ProfileEdit from "@/components/ProfileEdit";
 import PersonalDataForm from "@/components/PersonalDataForm";
+import ObjectiveForm from "@/components/ObjectiveForm";
 import ExperienceForm from "@/components/ExperienceForm";
 import EducationForm from "@/components/EducationForm";
 import SkillsForm from "@/components/SkillsForm";
@@ -22,6 +23,7 @@ const CVContent = () => {
   const handleLoadCV = (cvData: any, cvId?: string) => {
     cvContext.setCurrentCVId(cvId || null);
     cvContext.updatePersonalData(cvData.personalData);
+    cvContext.updateObjective(cvData.objective || { position: '', stack: '', goal: '' });
     cvContext.updateExperiences(cvData.experiences);
     cvContext.updateEducation(cvData.education);
     cvContext.updateSkills(cvData.skills);
@@ -34,6 +36,7 @@ const CVContent = () => {
       <div className="space-y-6">
         <DesignSelector />
         <PersonalDataForm />
+        <ObjectiveForm />
         <ExperienceForm />
         <EducationForm />
         <SkillsForm />
@@ -53,6 +56,7 @@ const SavedCVsContent = () => {
   const handleLoadCV = (cvData: any, cvId?: string) => {
     cvContext.setCurrentCVId(cvId || null);
     cvContext.updatePersonalData(cvData.personalData);
+    cvContext.updateObjective(cvData.objective || { position: '', stack: '', goal: '' });
     cvContext.updateExperiences(cvData.experiences);
     cvContext.updateEducation(cvData.education);
     cvContext.updateSkills(cvData.skills);
@@ -62,6 +66,7 @@ const SavedCVsContent = () => {
 
   const currentCVData = {
     personalData: cvContext.personalData,
+    objective: cvContext.objective,
     experiences: cvContext.experiences,
     education: cvContext.education,
     skills: cvContext.skills,
