@@ -69,6 +69,17 @@ Crie uma descrição de 2-3 frases que destaque responsabilidades e contribuiç�
     });
 
     const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('OpenAI API error:', data);
+      throw new Error(`OpenAI API error: ${data.error?.message || 'Unknown error'}`);
+    }
+    
+    if (!data.choices || data.choices.length === 0) {
+      console.error('No choices in OpenAI response:', data);
+      throw new Error('No suggestion generated');
+    }
+    
     const suggestion = data.choices[0].message.content;
 
     return new Response(JSON.stringify({ suggestion }), {
