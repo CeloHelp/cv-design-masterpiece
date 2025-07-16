@@ -99,14 +99,174 @@ const ExperienceForm = () => {
     });
   };
 
+  // Sugestões manuais organizadas por tipo e cargo
+  const getManualSuggestions = (type: string, position: string) => {
+    const suggestions = {
+      description: {
+        developer: [
+          "Desenvolveu aplicações web utilizando React, Node.js e MongoDB, implementando funcionalidades que aumentaram a produtividade da equipe em 25%.",
+          "Participou do desenvolvimento de APIs REST e integração com serviços de terceiros, garantindo alta performance e escalabilidade.",
+          "Colaborou com equipes multidisciplinares para implementar soluções inovadoras e manter a qualidade do código através de code reviews."
+        ],
+        designer: [
+          "Criou interfaces intuitivas e responsivas seguindo princípios de UX/UI, resultando em 30% de aumento na satisfação do usuário.",
+          "Desenvolveu sistemas de design consistentes e bibliotecas de componentes para acelerar o processo de desenvolvimento.",
+          "Realizou pesquisas com usuários e testes de usabilidade para validar soluções de design e otimizar a experiência do usuário."
+        ],
+        gerente: [
+          "Liderou equipe de 8 pessoas, implementando metodologias ágeis que aumentaram a produtividade em 40%.",
+          "Gerenciou orçamentos e recursos de projetos, garantindo entregas dentro do prazo e qualidade esperada.",
+          "Desenvolveu estratégias de crescimento e processos otimizados que reduziram custos operacionais em 20%."
+        ],
+        analista: [
+          "Analisou dados de negócio para identificar oportunidades de melhoria, gerando insights que impactaram positivamente os resultados.",
+          "Desenvolveu relatórios e dashboards para monitoramento de KPIs e suporte à tomada de decisões estratégicas.",
+          "Colaborou com diferentes departamentos para implementar soluções baseadas em dados e métricas de performance."
+        ],
+        default: [
+          "Executou tarefas com excelência, superando metas estabelecidas e contribuindo para o crescimento da empresa.",
+          "Colaborou efetivamente com equipes multifuncionais para atingir objetivos comuns e entregar resultados de qualidade.",
+          "Demonstrou proatividade e iniciativa na resolução de problemas e implementação de melhorias nos processos."
+        ]
+      },
+      problems: {
+        developer: [
+          "Baixa performance de aplicações web",
+          "Código legado difícil de manter",
+          "Falta de testes automatizados"
+        ],
+        designer: [
+          "Interface pouco intuitiva para usuários",
+          "Inconsistência visual entre produtos",
+          "Baixa taxa de conversão"
+        ],
+        gerente: [
+          "Baixa produtividade da equipe",
+          "Processos ineficientes",
+          "Falta de comunicação entre departamentos"
+        ],
+        analista: [
+          "Dados espalhados em diferentes sistemas",
+          "Relatórios manuais demorados",
+          "Falta de insights para tomada de decisão"
+        ],
+        default: [
+          "Processos manuais e repetitivos",
+          "Falta de padronização",
+          "Comunicação ineficiente"
+        ]
+      },
+      solutions: {
+        developer: [
+          "Implementou otimizações que reduziram tempo de carregamento em 60%",
+          "Refatorou código legado seguindo boas práticas de Clean Code",
+          "Criou suíte de testes automatizados com cobertura de 90%"
+        ],
+        designer: [
+          "Redesenhou interface baseada em pesquisa com usuários",
+          "Desenvolveu design system unificado",
+          "Implementou A/B tests que aumentaram conversão em 25%"
+        ],
+        gerente: [
+          "Implementou metodologias ágeis (Scrum/Kanban)",
+          "Criou workflows otimizados que reduziram retrabalho",
+          "Estabeleceu canais de comunicação eficientes"
+        ],
+        analista: [
+          "Implementou data warehouse centralizado",
+          "Automatizou relatórios usando ferramentas de BI",
+          "Criou dashboards interativos para análise em tempo real"
+        ],
+        default: [
+          "Automatizou processos manuais usando ferramentas digitais",
+          "Criou documentação e padrões de trabalho",
+          "Implementou sistema de comunicação mais eficiente"
+        ]
+      },
+      technologies: {
+        developer: [
+          "React, Node.js, JavaScript, TypeScript, MongoDB, PostgreSQL, Git, Docker",
+          "Python, Django, REST APIs, GraphQL, AWS, Firebase, Jest, Cypress",
+          "Vue.js, Angular, Express, MySQL, Redis, Kubernetes, CI/CD"
+        ],
+        designer: [
+          "Figma, Adobe Creative Suite, Sketch, InVision, Principle, Zeplin",
+          "Adobe XD, Framer, Miro, Hotjar, Google Analytics, Maze",
+          "Canva, After Effects, Photoshop, Illustrator, Webflow"
+        ],
+        analista: [
+          "Excel, Power BI, Tableau, SQL, Python, R, Google Analytics",
+          "Looker, Qlik, SPSS, SAS, Jupyter, Pandas, NumPy",
+          "Salesforce, HubSpot, Google Data Studio, BigQuery"
+        ],
+        default: [
+          "Microsoft Office, Google Workspace, Slack, Trello, Asana",
+          "Jira, Confluence, Notion, Zoom, Teams, CRM, ERP",
+          "Monday.com, ClickUp, Zapier, Airtable, Calendly"
+        ]
+      },
+      impact: {
+        developer: [
+          "Aumentou performance da aplicação em 60% e reduziu bugs em 40%",
+          "Implementou funcionalidades que geraram 15% de aumento na receita",
+          "Reduziu tempo de desenvolvimento em 30% através de automações"
+        ],
+        designer: [
+          "Aumentou taxa de conversão em 25% e satisfação do usuário em 30%",
+          "Reduziu tempo de design em 40% com sistema de componentes",
+          "Melhorou usabilidade resultando em 50% menos suporte ao usuário"
+        ],
+        gerente: [
+          "Aumentou produtividade da equipe em 40% e reduziu turnover em 30%",
+          "Implementou processos que reduziram custos operacionais em 20%",
+          "Melhorou entrega de projetos, atingindo 95% no prazo"
+        ],
+        analista: [
+          "Identificou oportunidades que resultaram em 20% de aumento na receita",
+          "Automatizou relatórios, economizando 15 horas semanais",
+          "Criou insights que melhoraram tomada de decisão em 35%"
+        ],
+        default: [
+          "Aumentou eficiência operacional em 25%",
+          "Reduziu custos de processos em 15%",
+          "Melhorou qualidade do atendimento ao cliente"
+        ]
+      }
+    };
+
+    // Determina categoria baseada no cargo
+    const getCategory = (position: string) => {
+      const pos = position.toLowerCase();
+      if (pos.includes('desenvolv') || pos.includes('programador') || pos.includes('dev')) return 'developer';
+      if (pos.includes('design') || pos.includes('ui') || pos.includes('ux')) return 'designer';
+      if (pos.includes('gerente') || pos.includes('coordenador') || pos.includes('supervisor')) return 'gerente';
+      if (pos.includes('analista') || pos.includes('dados') || pos.includes('business')) return 'analista';
+      return 'default';
+    };
+
+    const category = getCategory(position);
+    return suggestions[type]?.[category] || suggestions[type]?.default || [];
+  };
+
   const getAISuggestion = async (type: string, field: string) => {
-    if (!editingExperience?.company || !editingExperience?.position) {
-      alert('Por favor, preencha primeiro a empresa e o cargo para receber sugestões');
+    if (!editingExperience?.position) {
+      alert('Por favor, preencha o cargo para receber sugestões');
       return;
     }
 
     setAiLoading(true);
     try {
+      // Primeiro tenta obter sugestões manuais
+      const manualSuggestions = getManualSuggestions(type, editingExperience.position);
+      
+      if (manualSuggestions.length > 0) {
+        // Seleciona uma sugestão aleatória
+        const randomSuggestion = manualSuggestions[Math.floor(Math.random() * manualSuggestions.length)];
+        updateEditingExperience(field, randomSuggestion);
+        return;
+      }
+
+      // Fallback para IA (se disponível)
       const context = {
         company: editingExperience.company,
         position: editingExperience.position,
@@ -126,8 +286,8 @@ const ExperienceForm = () => {
         updateEditingExperience(field, data.suggestion);
       }
     } catch (error) {
-      console.error('Error getting AI suggestion:', error);
-      alert('Erro ao obter sugestão da IA. Tente novamente.');
+      console.error('Error getting suggestion:', error);
+      alert('Erro ao obter sugestão. Tente novamente.');
     } finally {
       setAiLoading(false);
     }
