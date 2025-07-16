@@ -9,13 +9,15 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useCVContext } from '@/contexts/CVContext';
-import { Briefcase, Plus, Trash2, ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { Briefcase, Plus, Trash2, ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from 'lucide-react';
 
 const ExperienceForm = () => {
   const { experiences, updateExperiences } = useCVContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const steps = [
     { title: 'Informações Básicas', fields: ['company', 'position', 'startDate', 'endDate', 'current', 'isPersonalProject'] },
@@ -95,6 +97,40 @@ const ExperienceForm = () => {
       if (field === 'current' || field === 'isPersonalProject') return true;
       return editingExperience[field]?.trim();
     });
+  };
+
+  const getAISuggestion = async (type: string, field: string) => {
+    if (!editingExperience?.company || !editingExperience?.position) {
+      alert('Por favor, preencha primeiro a empresa e o cargo para receber sugestões');
+      return;
+    }
+
+    setAiLoading(true);
+    try {
+      const context = {
+        company: editingExperience.company,
+        position: editingExperience.position,
+        startDate: editingExperience.startDate,
+        endDate: editingExperience.endDate,
+        problems: editingExperience.problem,
+        solutions: editingExperience.solution
+      };
+
+      const { data, error } = await supabase.functions.invoke('ai-suggestions', {
+        body: { type, context }
+      });
+
+      if (error) throw error;
+
+      if (data?.suggestion) {
+        updateEditingExperience(field, data.suggestion);
+      }
+    } catch (error) {
+      console.error('Error getting AI suggestion:', error);
+      alert('Erro ao obter sugestão da IA. Tente novamente.');
+    } finally {
+      setAiLoading(false);
+    }
   };
 
   const renderStepContent = () => {
@@ -177,55 +213,111 @@ const ExperienceForm = () => {
 
       case 1: // Problema/Contexto
         return (
-          <div>
-            <Label>Qual era o problema, dor ou necessidade antes da sua atuação?</Label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Qual era o problema, dor ou necessidade antes da sua atuação?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getAISuggestion('problems', 'problem')}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Sugestão IA
+              </Button>
+            </div>
             <Textarea
               value={editingExperience.problem}
               onChange={(e) => updateEditingExperience('problem', e.target.value)}
               placeholder="Descreva qual problema ou necessidade existia"
               rows={4}
-              className="mt-2"
             />
           </div>
         );
 
       case 2: // Solução
         return (
-          <div>
-            <Label>O que você fez para resolver?</Label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>O que você fez para resolver?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getAISuggestion('solutions', 'solution')}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Sugestão IA
+              </Button>
+            </div>
             <Textarea
               value={editingExperience.solution}
               onChange={(e) => updateEditingExperience('solution', e.target.value)}
               placeholder="Descreva as ações que você tomou"
               rows={4}
-              className="mt-2"
             />
           </div>
         );
 
       case 3: // Tecnologias
         return (
-          <div>
-            <Label>Quais tecnologias e ferramentas usou?</Label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Quais tecnologias e ferramentas usou?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getAISuggestion('technologies', 'technologies')}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Sugestão IA
+              </Button>
+            </div>
             <Input
               value={editingExperience.technologies}
               onChange={(e) => updateEditingExperience('technologies', e.target.value)}
               placeholder="Ex: Java, Spring Boot, PostgreSQL, Docker..."
-              className="mt-2"
             />
           </div>
         );
 
       case 4: // Impacto/Resultados
         return (
-          <div>
-            <Label>Qual foi o impacto ou resultado da sua atuação?</Label>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Qual foi o impacto ou resultado da sua atuação?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getAISuggestion('impact', 'impact')}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Sugestão IA
+              </Button>
+            </div>
             <Textarea
               value={editingExperience.impact}
               onChange={(e) => updateEditingExperience('impact', e.target.value)}
               placeholder="Descreva os resultados obtidos"
               rows={4}
-              className="mt-2"
             />
           </div>
         );
