@@ -21,7 +21,8 @@ const ExperienceForm = () => {
 
   const steps = [
     { title: 'Informações Básicas', fields: ['company', 'position', 'startDate', 'endDate', 'current', 'isPersonalProject'] },
-    { title: 'Problema/Contexto', fields: ['problem'] },
+    { title: 'Contexto do Projeto', fields: ['context'] },
+    { title: 'Problema/Necessidade', fields: ['problem'] },
     { title: 'Solução', fields: ['solution'] },
     { title: 'Tecnologias', fields: ['technologies'] },
     { title: 'Impacto/Resultados', fields: ['impact'] }
@@ -38,6 +39,7 @@ const ExperienceForm = () => {
       endDate: '',
       current: false,
       isPersonalProject: false,
+      context: '',
       problem: '',
       solution: '',
       technologies: '',
@@ -371,7 +373,25 @@ const ExperienceForm = () => {
           </div>
         );
 
-      case 1: // Problema/Contexto
+      case 1: // Contexto do Projeto
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Conte sobre o contexto do projeto</Label>
+            </div>
+            <Textarea
+              value={editingExperience.context}
+              onChange={(e) => updateEditingExperience('context', e.target.value)}
+              placeholder="Descreva o que era o projeto, o que ele solucionava e para quem foi desenvolvido"
+              rows={4}
+            />
+            <p className="text-sm text-muted-foreground">
+              Exemplo: "Sistema web para gestão de estoque de uma rede de farmácias com 15 lojas, desenvolvido para automatizar o controle de medicamentos e reduzir perdas por vencimento."
+            </p>
+          </div>
+        );
+
+      case 2: // Problema/Necessidade
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -393,13 +413,17 @@ const ExperienceForm = () => {
             <Textarea
               value={editingExperience.problem}
               onChange={(e) => updateEditingExperience('problem', e.target.value)}
-              placeholder="Descreva qual problema ou necessidade existia"
+              placeholder="Descreva qual problema ou necessidade existia quando você chegou/iniciou"
               rows={4}
             />
+            <p className="text-sm text-muted-foreground">
+              💡 <strong>Para projetos novos:</strong> Que problema ou oportunidade motivou a criação do projeto?<br/>
+              💡 <strong>Para projetos existentes:</strong> Que problema ou limitação você identificou ao entrar no projeto?
+            </p>
           </div>
         );
 
-      case 2: // Solução
+      case 3: // Solução
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -427,7 +451,7 @@ const ExperienceForm = () => {
           </div>
         );
 
-      case 3: // Tecnologias
+      case 4: // Tecnologias
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -454,7 +478,7 @@ const ExperienceForm = () => {
           </div>
         );
 
-      case 4: // Impacto/Resultados
+      case 5: // Impacto/Resultados
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
