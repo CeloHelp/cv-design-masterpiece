@@ -373,7 +373,14 @@ const ExperienceForm = () => {
           </div>
         );
 
-      case 1: // Contexto do Projeto
+      case 1: { // Contexto do Projeto
+        const contextSuggestions = [
+          'Sistema interno de cadastro de exames médicos usado por clínicas da rede.',
+          'Aplicação de pagamentos que processa transações feitas pelos clientes no app mobile.',
+          'Plataforma de agendamento de consultas integrada a sistemas legados.',
+          'CRUD de gerenciamento de produtos para uso de atendentes no e-commerce.',
+          'Dashboard de indicadores para líderes técnicos visualizarem a performance dos serviços.'
+        ];
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -385,13 +392,40 @@ const ExperienceForm = () => {
               placeholder="Descreva o que era o projeto, o que ele solucionava e para quem foi desenvolvido"
               rows={4}
             />
-            <p className="text-sm text-muted-foreground">
-              Exemplo: "Sistema web para gestão de estoque de uma rede de farmácias com 15 lojas, desenvolvido para automatizar o controle de medicamentos e reduzir perdas por vencimento."
-            </p>
+            {/* Card de sugestões de projetos */}
+            <div className="mt-2">
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {contextSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                        onClick={() => updateEditingExperience('context', s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
+      }
 
-      case 2: // Problema/Necessidade
+      case 2: { // Problema/Necessidade
+        const problemSuggestions = [
+          'Baixa performance de aplicações web ou sistemas lentos.',
+          'Interface pouco intuitiva para usuários ou baixa taxa de conversão.',
+          'Processos manuais e repetitivos, falta de automação.',
+          'Falta de integração entre sistemas ou dados espalhados.',
+          'Falta de relatórios e indicadores para tomada de decisão.'
+        ];
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -416,14 +450,40 @@ const ExperienceForm = () => {
               placeholder="Descreva qual problema ou necessidade existia quando você chegou/iniciou"
               rows={4}
             />
-            <p className="text-sm text-muted-foreground">
-              💡 <strong>Para projetos novos:</strong> Que problema ou oportunidade motivou a criação do projeto?<br/>
-              💡 <strong>Para projetos existentes:</strong> Que problema ou limitação você identificou ao entrar no projeto?
-            </p>
+            {/* Card de exemplos de problemas */}
+            <div className="mt-2">
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {problemSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                        onClick={() => updateEditingExperience('problem', s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
+      }
 
-      case 3: // Solução
+      case 3: { // Solução
+        const solutionSuggestions = [
+          'Implementou automações e integrações para eliminar tarefas manuais.',
+          'Redesenhou a interface do sistema com foco em usabilidade.',
+          'Desenvolveu APIs e conectores para integração entre sistemas.',
+          'Criou dashboards e relatórios automáticos para gestores.',
+          'Refatorou código legado e implementou testes automatizados.'
+        ];
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -448,8 +508,31 @@ const ExperienceForm = () => {
               placeholder="Descreva as ações que você tomou"
               rows={4}
             />
+            {/* Card de exemplos de soluções */}
+            <div className="mt-2">
+              <Card className="border-blue-200 bg-blue-50">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {solutionSuggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                        onClick={() => updateEditingExperience('solution', s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </div>
         );
+      }
 
       case 4: // Tecnologias
         return (
