@@ -18,9 +18,9 @@ serve(async (req) => {
 
     let prompt = "";
     if (type === "improve" && text) {
-      prompt = `Melhore o seguinte texto para deixá-lo mais profissional e claro:\n\n"${text}"`;
+      prompt = `Melhore o seguinte texto para deixá-lo mais profissional e claro, e responda apenas com o texto melhorado, sem explicações ou comentários:\n\n"${text}"`;
     } else {
-      prompt = `Dado o seguinte contexto de experiência profissional:\n${JSON.stringify(context, null, 2)}\nSugira um texto para a etapa: ${type}.`;
+      prompt = `Dado o seguinte contexto de experiência profissional:\n${JSON.stringify(context, null, 2)}\nSugira um texto para a etapa: ${type}. Responda apenas com o texto sugerido, sem explicações ou comentários.`;
     }
 
     const geminiRes = await fetch(
