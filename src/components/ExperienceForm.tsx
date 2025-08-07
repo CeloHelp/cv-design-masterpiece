@@ -251,24 +251,8 @@ const ExperienceForm = () => {
   };
 
   const getAISuggestion = async (type: string, field: string) => {
-    if (!editingExperience?.position) {
-      alert('Por favor, preencha o cargo para receber sugestões');
-      return;
-    }
-
     setAiLoading(true);
     try {
-      // Primeiro tenta obter sugestões manuais
-      const manualSuggestions = getManualSuggestions(type, editingExperience.position);
-      
-      if (manualSuggestions.length > 0) {
-        // Seleciona uma sugestão aleatória
-        const randomSuggestion = manualSuggestions[Math.floor(Math.random() * manualSuggestions.length)];
-        updateEditingExperience(field, randomSuggestion);
-        return;
-      }
-
-      // Fallback para IA (se disponível)
       const context = {
         company: editingExperience.company,
         position: editingExperience.position,
@@ -278,14 +262,32 @@ const ExperienceForm = () => {
         solutions: editingExperience.solution
       };
 
-      const { data, error } = await supabase.functions.invoke('ai-suggestions', {
-        body: { type, context }
+      const currentText = editingExperience[field];
+      const isImprovement = currentText && String(currentText).trim().length > 0;
+
+      // Obter token do usuário autenticado
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+      console.log('AccessToken:', accessToken);
+      if (!accessToken) {
+        alert('Você precisa estar logado para usar a sugestão IA.');
+        setAiLoading(false);
+        return;
+      }
+
+      const { data, error: aiError } = await supabase.functions.invoke('ai-suggestions', {
+        body: isImprovement
+          ? { type: 'improve', context, text: currentText }
+          : { type, context },
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
       });
-
-      if (error) throw error;
-
+      if (aiError) throw aiError;
       if (data?.suggestion) {
         updateEditingExperience(field, data.suggestion);
+      } else {
+        alert('Não foi possível obter sugestão. Tente novamente.');
       }
     } catch (error) {
       console.error('Error getting suggestion:', error);
