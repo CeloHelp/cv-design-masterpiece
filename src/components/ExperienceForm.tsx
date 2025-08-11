@@ -23,8 +23,7 @@ const ExperienceForm = () => {
     { title: 'Informações Básicas', fields: ['company', 'position', 'startDate', 'endDate', 'current', 'isPersonalProject'] },
     { title: 'Contexto do Projeto', fields: ['context'] },
     { title: 'Problema/Necessidade', fields: ['problem'] },
-    { title: 'Solução', fields: ['solution'] },
-    { title: 'Tecnologias', fields: ['technologies'] },
+  { title: 'Atividades e Tecnologias', fields: ['activitiesAndTechnologies'] },
     { title: 'Impacto/Resultados', fields: ['impact'] }
   ];
 
@@ -41,9 +40,9 @@ const ExperienceForm = () => {
       isPersonalProject: false,
       context: '',
       problem: '',
-      solution: '',
-      technologies: '',
-      impact: ''
+      activitiesAndTechnologies: '',
+      impact: '',
+      starSummary: ''
     };
     setEditingExperience(newExperience);
     setCurrentStep(0);
@@ -60,15 +59,33 @@ const ExperienceForm = () => {
     setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
   };
 
-  const saveExperience = () => {
+  // Salva experiência e envia para função do Supabase para gerar/atualizar o STAR
+  const saveExperience = async () => {
     if (editingExperience) {
-      const existingIndex = experiences.findIndex(exp => exp.id === editingExperience.id);
+      let expToSave = { ...editingExperience };
+      // Se não houver starSummary, tenta gerar via função Supabase
+      if (!expToSave.starSummary || expToSave.starSummary.trim() === '') {
+        try {
+          const response = await fetch('/api/generate-experience-summary', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ experiences: [expToSave] })
+          });
+          const data = await response.json();
+          if (data.prompt) {
+            expToSave.starSummary = data.prompt;
+          }
+        } catch (e) {
+          // fallback: mantém vazio
+        }
+      }
+      const existingIndex = experiences.findIndex(exp => exp.id === expToSave.id);
       if (existingIndex >= 0) {
         const updated = [...experiences];
-        updated[existingIndex] = editingExperience;
+        updated[existingIndex] = expToSave;
         updateExperiences(updated);
       } else {
-        updateExperiences([...experiences, editingExperience]);
+        updateExperiences([...experiences, expToSave]);
       }
       setIsModalOpen(false);
       setEditingExperience(null);
@@ -479,115 +496,125 @@ const ExperienceForm = () => {
       }
 
       case 3: { // Solução
-        const solutionSuggestions = [
-          'Implementou automações e integrações para eliminar tarefas manuais.',
-          'Redesenhou a interface do sistema com foco em usabilidade.',
-          'Desenvolveu APIs e conectores para integração entre sistemas.',
-          'Criou dashboards e relatórios automáticos para gestores.',
-          'Refatorou código legado e implementou testes automatizados.'
-        ];
+          const suggestions = [
+            'Implementou automações e integrações para eliminar tarefas manuais usando Python e Zapier.',
+            'Redesenhou a interface do sistema com foco em usabilidade utilizando Figma e React.',
+            'Desenvolveu APIs e conectores para integração entre sistemas com Node.js e Express.',
+            'Criou dashboards e relatórios automáticos para gestores usando Power BI e SQL.',
+            'Refatorou código legado e implementou testes automatizados com Jest e Cypress.'
+          ];
+          return (
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <Label>Atividades e Tecnologias</Label>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => getAISuggestion('activitiesAndTechnologies', 'activitiesAndTechnologies')}
+                  disabled={aiLoading}
+                >
+                  {aiLoading ? (
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  ) : (
+                    <Sparkles className="w-4 h-4 mr-2" />
+                  )}
+                  Sugestão IA
+                </Button>
+              </div>
+              <Textarea
+                value={editingExperience.activitiesAndTechnologies}
+                onChange={(e) => updateEditingExperience('activitiesAndTechnologies', e.target.value)}
+                placeholder="Descreva as atividades realizadas e as tecnologias/ferramentas utilizadas"
+                rows={4}
+              />
+              {/* Card de exemplos */}
+              <div className="mt-2">
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {suggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          type="button"
+                          className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                          onClick={() => updateEditingExperience('activitiesAndTechnologies', s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          );
+        }
+
+      case 5: // Aprovação do texto STAR
+        // Geração do texto STAR para aprovação/edição
+        const positionTitle = editingExperience.position ? editingExperience.position : 'Cargo';
+        // Prompt refinado para primeira pessoa e dados qualitativos/quantitativos
+        let starText = '';
+        if (editingExperience.activitiesAndTechnologies || editingExperience.impact) {
+          const parts: string[] = [];
+          if (editingExperience.activitiesAndTechnologies) {
+            parts.push(editingExperience.activitiesAndTechnologies);
+          }
+          if (editingExperience.impact) {
+            parts.push(`Impacto/resultados: ${editingExperience.impact}`);
+          }
+          starText = `Desenvolvi/Implementei: ${parts.join(' ')} (use sempre dados qualitativos e quantitativos, ex: reduzi o tempo de espera em 30%)`;
+        }
         return (
           <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>O que você fez para resolver?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('solutions', 'solution')}
-                disabled={aiLoading}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Sugestão IA
-              </Button>
-            </div>
-            <Textarea
-              value={editingExperience.solution}
-              onChange={(e) => updateEditingExperience('solution', e.target.value)}
-              placeholder="Descreva as ações que você tomou"
-              rows={4}
-            />
-            {/* Card de exemplos de soluções */}
-            <div className="mt-2">
-              <Card className="border-blue-200 bg-blue-50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {solutionSuggestions.map((s, i) => (
+            <div>
+              <h4 className="text-lg font-bold text-blue-700 mb-1">{positionTitle}</h4>
+              <Label className="mb-2 block">Resumo Profissional (modelo STAR)</Label>
+              <Textarea
+                value={editingExperience.starSummary ?? starText}
+                onChange={e => updateEditingExperience('starSummary', e.target.value)}
+                placeholder="Ex: Implementei microserviços escaláveis que processam 250 milhões de registros/dia, garantindo alta disponibilidade. Reduzi o tempo de geração de relatórios em 75% implementando pipelines de dados."
+                rows={5}
+              />
+              <div className="mt-2 text-xs text-gray-500">
+                Dica: Use verbos na primeira pessoa (ex: Desenvolvi, Implementei, Reduzi, Otimizei) e inclua dados qualitativos e quantitativos (ex: aumentei a performance em 40%, reduzi custos em 20%).
+              </div>
+              <div className="mt-2">
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <button
-                        key={i}
                         type="button"
                         className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                        onClick={() => updateEditingExperience('solution', s)}
+                        onClick={() => updateEditingExperience('starSummary', 'Desenvolvi microserviços escaláveis que processam 250 milhões de registros/dia, garantindo alta disponibilidade e performance.')}
                       >
-                        {s}
+                        Desenvolvi microserviços escaláveis que processam 250 milhões de registros/dia, garantindo alta disponibilidade e performance.
                       </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      <button
+                        type="button"
+                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                        onClick={() => updateEditingExperience('starSummary', 'Reduzi o tempo de geração de relatórios contábeis em 75% implementando pipelines de dados com Java e Apache Spark, Kafka, S3 e AWS EMR.')}
+                      >
+                        Reduzi o tempo de geração de relatórios contábeis em 75% implementando pipelines de dados com Java e Apache Spark, Kafka, S3 e AWS EMR.
+                      </button>
+                      <button
+                        type="button"
+                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+                        onClick={() => updateEditingExperience('starSummary', 'Liderei treinamentos técnicos para mais de 300 desenvolvedores, focando em boas práticas de desenvolvimento de software e arquiteturas de microserviços.')}
+                      >
+                        Liderei treinamentos técnicos para mais de 300 desenvolvedores, focando em boas práticas de desenvolvimento de software e arquiteturas de microserviços.
+                      </button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
-        );
-      }
-
-      case 4: // Tecnologias
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Quais tecnologias e ferramentas usou?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('technologies', 'technologies')}
-                disabled={aiLoading}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Sugestão IA
-              </Button>
-            </div>
-            <Input
-              value={editingExperience.technologies}
-              onChange={(e) => updateEditingExperience('technologies', e.target.value)}
-              placeholder="Ex: Java, Spring Boot, PostgreSQL, Docker..."
-            />
-          </div>
-        );
-
-      case 5: // Impacto/Resultados
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Qual foi o impacto ou resultado da sua atuação?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('impact', 'impact')}
-                disabled={aiLoading}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Sugestão IA
-              </Button>
-            </div>
-            <Textarea
-              value={editingExperience.impact}
-              onChange={(e) => updateEditingExperience('impact', e.target.value)}
-              placeholder="Descreva os resultados obtidos"
-              rows={4}
-            />
           </div>
         );
 

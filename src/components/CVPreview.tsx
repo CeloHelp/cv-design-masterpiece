@@ -3,6 +3,7 @@ import React from 'react';
 import { Card } from "@/components/ui/card";
 import { FileText } from "lucide-react";
 import { useCVContext } from '@/contexts/CVContext';
+import { generateExperienceSummary } from '@/lib/generateExperienceSummary';
 
 const CVPreview: React.FC = () => {
   const {
@@ -67,32 +68,17 @@ const CVPreview: React.FC = () => {
           </div>
         )}
 
-        {/* Experience */}
+        {/* Experience - STAR summary */}
         {experiences.some(exp => exp.company || exp.position) && (
           <div className="mb-6">
             <h2 className="text-2xl font-bold text-blue-600 mb-3 border-b border-gray-300 pb-1">Experiência Profissional</h2>
-            {experiences.map((exp) => (
-              (exp.company || exp.position) && (
-                <div key={exp.id} className="mb-6">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h3 className="text-lg font-semibold text-gray-800">{exp.position || 'Cargo'}</h3>
-                      <p className="text-blue-600 font-medium">{exp.company || 'Empresa'}</p>
-                    </div>
-                    <span className="text-gray-500 text-sm">
-                      {formatDate(exp.startDate)} - {exp.current ? 'Atual' : formatDate(exp.endDate)}
-                      {exp.isPersonalProject && <span className="ml-2 text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">Projeto Pessoal</span>}
-                    </span>
-                  </div>
-                  <div className="space-y-2 text-sm">
-                    {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                    {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                    {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
-                    {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
-                  </div>
-                </div>
-              )
-            ))}
+            <div className="space-y-2 text-base">
+              {generateExperienceSummary(experiences)
+                .split('\n')
+                .map((line, idx) => line.trim() && (
+                  <div key={idx}>{line}</div>
+                ))}
+            </div>
           </div>
         )}
 
@@ -206,8 +192,7 @@ const CVPreview: React.FC = () => {
                   </div>
                   <div className="space-y-1 text-sm">
                     {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                    {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                    {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                    {/* campo removido, agora o resumo é gerado por IA */}
                     {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
                   </div>
                 </div>
@@ -331,8 +316,7 @@ const CVPreview: React.FC = () => {
                     </div>
                     <div className="space-y-1 text-sm">
                       {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                      {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                      {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                      {/* campo removido, agora o resumo é gerado por IA */}
                       {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
                     </div>
                   </div>
