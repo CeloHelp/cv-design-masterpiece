@@ -18,14 +18,16 @@ const ExperienceForm = () => {
   const [editingExperience, setEditingExperience] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [aiLoading, setAiLoading] = useState(false);
+  const [starText, setStarText] = useState('');
 
+  // Etapas do formulário - Unindo Solução e Tecnologias
   const steps = [
-    { title: 'Informações Básicas', fields: ['company', 'position', 'startDate', 'endDate', 'current', 'isPersonalProject'] },
-    { title: 'Contexto do Projeto', fields: ['context'] },
-    { title: 'Problema/Necessidade', fields: ['problem'] },
-    { title: 'Solução', fields: ['solution'] },
-    { title: 'Tecnologias', fields: ['technologies'] },
-    { title: 'Impacto/Resultados', fields: ['impact'] }
+    { title: 'Informações Básicas', required: ['company', 'position'] },
+    { title: 'Contexto do Projeto', required: ['context'] },
+    { title: 'Problema/Necessidade', required: ['problem'] },
+    { title: 'Solução e Tecnologias', required: ['solution'] },
+    { title: 'Impacto/Resultados', required: ['impact'] },
+    { title: 'Texto STAR', required: ['starText'] }
   ];
 
   const progress = ((currentStep + 1) / steps.length) * 100;
@@ -43,7 +45,8 @@ const ExperienceForm = () => {
       problem: '',
       solution: '',
       technologies: '',
-      impact: ''
+      impact: '',
+      starText: ''
     };
     setEditingExperience(newExperience);
     setCurrentStep(0);
@@ -94,8 +97,8 @@ const ExperienceForm = () => {
 
   const canProceed = () => {
     if (!editingExperience) return false;
-    const currentFields = steps[currentStep].fields;
-    return currentFields.some(field => {
+    const requiredFields = steps[currentStep].required;
+    return requiredFields.some(field => {
       if (field === 'current' || field === 'isPersonalProject') return true;
       return editingExperience[field]?.trim();
     });
@@ -251,122 +254,139 @@ const ExperienceForm = () => {
   };
 
   const getAISuggestion = async (type: string, field: string) => {
-    if (!editingExperience?.position) {
-      alert('Por favor, preencha o cargo para receber sugestões');
-      return;
-    }
-
     setAiLoading(true);
     try {
-      // Primeiro tenta obter sugestões manuais
-      const manualSuggestions = getManualSuggestions(type, editingExperience.position);
-      
-      if (manualSuggestions.length > 0) {
-        // Seleciona uma sugestão aleatória
-        const randomSuggestion = manualSuggestions[Math.floor(Math.random() * manualSuggestions.length)];
-        updateEditingExperience(field, randomSuggestion);
-        return;
-      }
-
-      // Fallback para IA (se disponível)
-      const context = {
-        company: editingExperience.company,
-        position: editingExperience.position,
-        startDate: editingExperience.startDate,
-        endDate: editingExperience.endDate,
-        problems: editingExperience.problem,
-        solutions: editingExperience.solution
-      };
-
-      const { data, error } = await supabase.functions.invoke('ai-suggestions', {
-        body: { type, context }
+      const { data, error } = await supabase.functions.invoke('field-suggestions', {
+        body: { type, context: editingExperience },
       });
 
-      if (error) throw error;
-
-      if (data?.suggestion) {
+      if (error) {
+        console.error('Erro ao obter sugestão da IA:', error);
+        alert('Erro ao obter sugestão da IA. Tente novamente.');
+      } else if (data && data.suggestion) {
         updateEditingExperience(field, data.suggestion);
       }
     } catch (error) {
-      console.error('Error getting suggestion:', error);
-      alert('Erro ao obter sugestão. Tente novamente.');
+      console.error('Erro inesperado ao chamar a função de IA:', error);
+      alert('Erro inesperado ao obter sugestão da IA.');
     } finally {
       setAiLoading(false);
     }
   };
 
+  const generateStarText = async () => {
+    if (!editingExperience.context || !editingExperience.problem || !editingExperience.solution || !editingExperience.impact) {
+      alert('Por favor, preencha as informações de Contexto, Problema, Solução e Impacto antes de gerar o texto STAR.');
+      return;
+    }
+
+    const prompt = `Reformule a seguinte experiência profissional para o Método STAR (Situação, Tarefa, Ação, Resultado), focando em adicionar detalhes e métricas qualitativas e quantitativas. O texto deve ser conciso e direto ao ponto, ideal para um currículo ou entrevista.
+
+Situação (Contexto do Projeto): ${editingExperience.context}
+Tarefa (Problema/Necessidade): ${editingExperience.problem}
+Ação (O que fez para Resolver e quais tecnologias utilizou): ${editingExperience.solution}
+Resultado (Impacto/Resultados): ${editingExperience.impact}
+
+Formate a resposta claramente com as seções S, T, A, R.`;
+
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-suggestions', {
+        body: { type: 'star_text', prompt, experience: editingExperience }
+      });
+
+      if (error) {
+        console.error('Erro ao gerar texto STAR:', error);
+        alert('Erro ao gerar texto STAR. Tente novamente.');
+      } else if (data && data.suggestion) {
+        updateEditingExperience('starText', data.suggestion);
+      }
+    } catch (error) {
+      console.error('Erro inesperado ao gerar texto STAR:', error);
+      alert('Erro inesperado ao gerar texto STAR.');
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Renderiza o conteúdo de cada etapa
   const renderStepContent = () => {
     if (!editingExperience) return null;
-
+    
     switch (currentStep) {
       case 0: // Informações Básicas
         return (
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 gap-4">
               <div>
-                <Label>{editingExperience.isPersonalProject ? 'Nome do Projeto' : 'Empresa'}</Label>
+                <Label htmlFor="company">Empresa/Organização</Label>
                 <Input
+                  id="company"
                   value={editingExperience.company}
                   onChange={(e) => updateEditingExperience('company', e.target.value)}
-                  placeholder={editingExperience.isPersonalProject ? 'Nome do seu projeto' : 'Nome da empresa'}
+                  placeholder="Nome da empresa ou organização"
                 />
               </div>
+
               <div>
-                <Label>{editingExperience.isPersonalProject ? 'Função/Papel' : 'Cargo'}</Label>
+                <Label htmlFor="position">Cargo/Posição</Label>
                 <Input
+                  id="position"
                   value={editingExperience.position}
                   onChange={(e) => updateEditingExperience('position', e.target.value)}
-                  placeholder={editingExperience.isPersonalProject ? 'Seu papel no projeto' : 'Seu cargo'}
+                  placeholder="Seu cargo ou função"
                 />
               </div>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>Data de Início</Label>
-                <Input
-                  type="text"
-                  value={editingExperience.startDate}
-                  onChange={(e) => updateEditingExperience('startDate', e.target.value)}
-                  placeholder="Digite: 15/01/2023 ou 01/2023"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  ✓ Aceita: DD/MM/AAAA ou MM/AAAA
-                </p>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="startDate">Data de Início</Label>
+                  <Input
+                    id="startDate"
+                    type="month"
+                    value={editingExperience.startDate}
+                    onChange={(e) => updateEditingExperience('startDate', e.target.value)}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="endDate">Data de Término</Label>
+                  <Input
+                    id="endDate"
+                    type="month"
+                    value={editingExperience.endDate}
+                    onChange={(e) => updateEditingExperience('endDate', e.target.value)}
+                    disabled={editingExperience.current}
+                  />
+                </div>
               </div>
-              <div>
-                <Label>Data de Fim</Label>
-                <Input
-                  type="text"
-                  value={editingExperience.endDate}
-                  onChange={(e) => updateEditingExperience('endDate', e.target.value)}
-                  disabled={editingExperience.current}
-                  placeholder="Digite: 30/12/2023 ou 12/2023"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  ✓ Aceita: DD/MM/AAAA ou MM/AAAA
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-4">
+
               <div className="flex items-center space-x-2">
                 <Checkbox
-                  id="personal-project"
-                  checked={editingExperience.isPersonalProject}
-                  onCheckedChange={(checked) => updateEditingExperience('isPersonalProject', checked as boolean)}
-                />
-                <Label htmlFor="personal-project">Projeto pessoal</Label>
-              </div>
-              
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="current-job"
+                  id="current"
                   checked={editingExperience.current}
-                  onCheckedChange={(checked) => updateEditingExperience('current', checked as boolean)}
+                  onCheckedChange={(checked) => {
+                    updateEditingExperience('current', !!checked);
+                    if (checked) {
+                      updateEditingExperience('endDate', '');
+                    }
+                  }}
                 />
-                <Label htmlFor="current-job">
-                  {editingExperience.isPersonalProject ? 'Atualmente trabalhando no projeto' : 'Trabalho atual'}
+                <Label htmlFor="current" className="text-sm font-normal">
+                  Trabalho atual
+                </Label>
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isPersonalProject"
+                  checked={editingExperience.isPersonalProject}
+                  onCheckedChange={(checked) => {
+                    updateEditingExperience('isPersonalProject', !!checked);
+                  }}
+                />
+                <Label htmlFor="isPersonalProject" className="text-sm font-normal">
+                  Projeto pessoal/freelance
                 </Label>
               </div>
             </div>
@@ -375,45 +395,36 @@ const ExperienceForm = () => {
 
       case 1: { // Contexto do Projeto
         const contextSuggestions = [
-          'Sistema interno de cadastro de exames médicos usado por clínicas da rede.',
-          'Aplicação de pagamentos que processa transações feitas pelos clientes no app mobile.',
-          'Plataforma de agendamento de consultas integrada a sistemas legados.',
-          'CRUD de gerenciamento de produtos para uso de atendentes no e-commerce.',
-          'Dashboard de indicadores para líderes técnicos visualizarem a performance dos serviços.'
+          'Desenvolvimento de um novo sistema de gestão para automatizar processos internos.',
+          'Redesign da interface do usuário para melhorar a experiência e aumentar conversões.',
+          'Implementação de uma solução de análise de dados para apoiar decisões estratégicas.',
+          'Criação de uma plataforma de e-commerce para expandir vendas online.',
+          'Desenvolvimento de APIs para integração entre sistemas legados e novas aplicações.'
         ];
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>Conte sobre o contexto do projeto</Label>
+              <Label>Qual era o contexto do projeto?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => getAISuggestion('context', 'context')}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Sugestão IA
+              </Button>
             </div>
             <Textarea
               value={editingExperience.context}
               onChange={(e) => updateEditingExperience('context', e.target.value)}
-              placeholder="Descreva o que era o projeto, o que ele solucionava e para quem foi desenvolvido"
+              placeholder="Descreva brevemente o contexto do projeto ou sua função"
               rows={4}
             />
-            {/* Card de sugestões de projetos */}
-            <div className="mt-2">
-              <Card className="border-blue-200 bg-blue-50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {contextSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                        onClick={() => updateEditingExperience('context', s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         );
       }
@@ -450,44 +461,22 @@ const ExperienceForm = () => {
               placeholder="Descreva qual problema ou necessidade existia quando você chegou/iniciou"
               rows={4}
             />
-            {/* Card de exemplos de problemas */}
-            <div className="mt-2">
-              <Card className="border-blue-200 bg-blue-50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {problemSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                        onClick={() => updateEditingExperience('problem', s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
         );
       }
 
-      case 3: { // Solução
+      case 3: { // Solução e Tecnologias
         const solutionSuggestions = [
-          'Implementou automações e integrações para eliminar tarefas manuais.',
-          'Redesenhou a interface do sistema com foco em usabilidade.',
-          'Desenvolveu APIs e conectores para integração entre sistemas.',
-          'Criou dashboards e relatórios automáticos para gestores.',
-          'Refatorou código legado e implementou testes automatizados.'
+          'Implementou automações e integrações para eliminar tarefas manuais utilizando JavaScript e Node.js.',
+          'Redesenhou a interface do sistema com foco em usabilidade utilizando React e Material UI.',
+          'Desenvolveu APIs e conectores para integração entre sistemas utilizando Python e FastAPI.',
+          'Criou dashboards e relatórios automáticos para gestores utilizando Power BI e SQL.',
+          'Refatorou código legado e implementou testes automatizados utilizando Jest e Cypress.'
         ];
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>O que você fez para resolver?</Label>
+              <Label>O que você fez para resolver e quais tecnologias utilizou?</Label>
               <Button
                 variant="outline"
                 size="sm"
@@ -505,40 +494,12 @@ const ExperienceForm = () => {
             <Textarea
               value={editingExperience.solution}
               onChange={(e) => updateEditingExperience('solution', e.target.value)}
-              placeholder="Descreva as ações que você tomou"
+              placeholder="Descreva as ações que você tomou e as tecnologias que utilizou"
               rows={4}
             />
-            {/* Card de exemplos de soluções */}
-            <div className="mt-2">
-              <Card className="border-blue-200 bg-blue-50">
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-base font-semibold">Exemplos de Respostas:</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {solutionSuggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        type="button"
-                        className="rounded border border-blue-100 bg-white px-3 py-2 text-sm text-gray-700 shadow-sm text-left hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-                        onClick={() => updateEditingExperience('solution', s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-        );
-      }
 
-      case 4: // Tecnologias
-        return (
-          <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <Label>Quais tecnologias e ferramentas usou?</Label>
+              <Label>Quais tecnologias você utilizou?</Label>
               <Button
                 variant="outline"
                 size="sm"
@@ -553,15 +514,17 @@ const ExperienceForm = () => {
                 Sugestão IA
               </Button>
             </div>
-            <Input
+            <Textarea
               value={editingExperience.technologies}
               onChange={(e) => updateEditingExperience('technologies', e.target.value)}
-              placeholder="Ex: Java, Spring Boot, PostgreSQL, Docker..."
+              placeholder="Liste as tecnologias utilizadas (ex: React, Node.js, Python)"
+              rows={4}
             />
           </div>
         );
+      }
 
-      case 5: // Impacto/Resultados
+      case 4: // Impacto/Resultados
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -583,8 +546,33 @@ const ExperienceForm = () => {
             <Textarea
               value={editingExperience.impact}
               onChange={(e) => updateEditingExperience('impact', e.target.value)}
-              placeholder="Descreva os resultados obtidos"
+              placeholder="Descreva o impacto e os resultados das suas ações"
               rows={4}
+            />
+          </div>
+        );
+
+      case 5: // Texto STAR
+        return (
+          <div className="space-y-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={generateStarText}
+              disabled={aiLoading}
+            >
+              {aiLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Sparkles className="w-4 h-4 mr-2" />
+              )}
+              Gerar Texto STAR
+            </Button>
+            <Textarea
+              value={editingExperience.starText}
+              onChange={(e) => updateEditingExperience('starText', e.target.value)}
+              placeholder="O texto STAR será gerado aqui"
+              rows={8}
             />
           </div>
         );

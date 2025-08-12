@@ -25,10 +25,12 @@ interface Experience {
   endDate: string;
   current: boolean;
   isPersonalProject: boolean;
+  context: string;
   problem: string;
   solution: string;
   technologies: string;
   impact: string;
+  starText: string;
 }
 
 interface Education {

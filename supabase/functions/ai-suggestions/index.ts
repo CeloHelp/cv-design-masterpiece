@@ -1,5 +1,5 @@
 // Follow the Deno runtime API: https://deno.com/manual@v1.28.3/examples/http_server
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.181.0/http/server.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,16 +12,11 @@ serve(async (req) => {
   }
 
   try {
-    const { type, context, text } = await req.json();
-    const apiKey = Deno.env.get("GEMINI_API_KEY");
+    const { prompt } = await req.json();
+    console.log('Received request for STAR text generation:', { prompt });
+    const apiKey = Deno.env.get("GEMINI_API_KEY") as string;
     if (!apiKey) return new Response("Missing Gemini API key", { status: 500 });
 
-    let prompt = "";
-    if (type === "improve" && text) {
-      prompt = `Melhore o seguinte texto para deixá-lo mais profissional e claro, e responda apenas com o texto melhorado, sem explicações ou comentários:\n\n"${text}"`;
-    } else {
-      prompt = `Dado o seguinte contexto de experiência profissional:\n${JSON.stringify(context, null, 2)}\nSugira um texto para a etapa: ${type}. Responda apenas com o texto sugerido, sem explicações ou comentários.`;
-    }
 
     const geminiRes = await fetch(
       "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=" + apiKey,
