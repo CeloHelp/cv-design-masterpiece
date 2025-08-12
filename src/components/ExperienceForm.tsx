@@ -280,14 +280,15 @@ const ExperienceForm = () => {
       return;
     }
 
-    const prompt = `Reformule a seguinte experiência profissional para o Método STAR (Situação, Tarefa, Ação, Resultado), focando em adicionar detalhes e métricas qualitativas e quantitativas. O texto deve ser conciso e direto ao ponto, ideal para um currículo ou entrevista.
+    const prompt = `Com base nas informações fornecidas, crie um texto profissional seguindo o método STAR (Situação, Tarefa, Ação, Resultado) para um currículo. O texto deve ser corrido, bem estruturado e impactante, sem separar as seções. Foque em números e resultados quantitativos sempre que possível.
 
-Situação (Contexto do Projeto): ${editingExperience.context}
-Tarefa (Problema/Necessidade): ${editingExperience.problem}
-Ação (O que fez para Resolver e quais tecnologias utilizou): ${editingExperience.solution}
-Resultado (Impacto/Resultados): ${editingExperience.impact}
+Informações fornecidas:
+- Contexto do Projeto (Situação): ${editingExperience.context}
+- Problema/Necessidade (Tarefa): ${editingExperience.problem}  
+- Solução Implementada (Ação): ${editingExperience.solution}
+- Impacto/Resultados (Resultado): ${editingExperience.impact}
 
-Formate a resposta claramente com as seções S, T, A, R.`;
+Gere um texto único, fluido e profissional que incorpore todos esses elementos de forma natural. O texto deve ter entre 3-5 linhas e ser adequado para aparecer diretamente no currículo como descrição da experiência profissional.`;
 
     setAiLoading(true);
     try {
@@ -532,23 +533,35 @@ Formate a resposta claramente com as seções S, T, A, R.`;
       case 5: // Texto STAR
         return (
           <div className="space-y-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={generateStarText}
-              disabled={aiLoading}
-            >
-              {aiLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <Sparkles className="w-4 h-4 mr-2" />
-              )}
-              Gerar Texto STAR
-            </Button>
+            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <h4 className="font-medium text-blue-800 mb-2">📝 Texto Final para o Currículo</h4>
+              <p className="text-sm text-blue-700">
+                Este será o texto que aparecerá no seu CV. Clique em "Gerar Texto STAR" para criar automaticamente 
+                um texto profissional baseado nas informações das etapas anteriores, ou escreva sua própria versão.
+              </p>
+            </div>
+            
+            <div className="flex justify-between items-center">
+              <Label>Texto da experiência para o currículo</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={generateStarText}
+                disabled={aiLoading}
+              >
+                {aiLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                Gerar Texto STAR
+              </Button>
+            </div>
+            
             <Textarea
               value={editingExperience.starText}
               onChange={(e) => updateEditingExperience('starText', e.target.value)}
-              placeholder="O texto STAR será gerado aqui"
+              placeholder="Clique em 'Gerar Texto STAR' para criar automaticamente ou escreva seu próprio texto aqui..."
               rows={8}
             />
           </div>
