@@ -497,29 +497,6 @@ Formate a resposta claramente com as seções S, T, A, R.`;
               placeholder="Descreva as ações que você tomou e as tecnologias que utilizou"
               rows={4}
             />
-
-            <div className="flex items-center justify-between">
-              <Label>Quais tecnologias você utilizou?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('technologies', 'technologies')}
-                disabled={aiLoading}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Sugestão IA
-              </Button>
-            </div>
-            <Textarea
-              value={editingExperience.technologies}
-              onChange={(e) => updateEditingExperience('technologies', e.target.value)}
-              placeholder="Liste as tecnologias utilizadas (ex: React, Node.js, Python)"
-              rows={4}
-            />
           </div>
         );
       }
