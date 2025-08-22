@@ -288,7 +288,9 @@ Informações fornecidas:
 - Solução Implementada (Ação): ${editingExperience.solution}
 - Impacto/Resultados (Resultado): ${editingExperience.impact}
 
-Gere um texto único, fluido e profissional que incorpore todos esses elementos de forma natural. O texto deve ter entre 3-5 linhas e ser adequado para aparecer diretamente no currículo como descrição da experiência profissional.`;
+Gere um texto único, fluido e profissional que incorpore todos esses elementos de forma natural. O texto deve ter entre 3-5 linhas e ser adequado para aparecer diretamente no currículo como descrição da experiência profissional.
+
+Responda apenas com o texto sugerido, sem explicações ou comentários adicionais.`;
 
     setAiLoading(true);
     try {
