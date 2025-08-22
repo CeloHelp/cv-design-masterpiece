@@ -255,10 +255,22 @@ const ExperienceForm = () => {
   };
 
   const getAISuggestion = async (type: string, field: string) => {
+    const currentValue = editingExperience[field] as string;
+    
+    if (!currentValue?.trim()) {
+      alert('Preencha o campo primeiro para que a IA possa refiná-lo.');
+      return;
+    }
+
     setAiLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('field-suggestions', {
-        body: { type, context: editingExperience },
+        body: { 
+          type: 'refine', 
+          context: editingExperience,
+          fieldToRefine: field,
+          currentText: currentValue
+        },
       });
 
       if (error) {
@@ -414,14 +426,14 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 variant="outline"
                 size="sm"
                 onClick={() => getAISuggestion('context', 'context')}
-                disabled={aiLoading}
+                disabled={aiLoading || !editingExperience.context?.trim()}
               >
                 {aiLoading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Sparkles className="w-4 h-4 mr-2" />
                 )}
-                Sugestão IA
+                Refinar com IA
               </Button>
             </div>
             
@@ -480,14 +492,14 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 variant="outline"
                 size="sm"
                 onClick={() => getAISuggestion('problems', 'problem')}
-                disabled={aiLoading}
+                disabled={aiLoading || !editingExperience.problem?.trim()}
               >
                 {aiLoading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Sparkles className="w-4 h-4 mr-2" />
                 )}
-                Sugestão IA
+                Refinar com IA
               </Button>
             </div>
             <Textarea
@@ -516,14 +528,14 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 variant="outline"
                 size="sm"
                 onClick={() => getAISuggestion('solutions', 'solution')}
-                disabled={aiLoading}
+                disabled={aiLoading || !editingExperience.solution?.trim()}
               >
                 {aiLoading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Sparkles className="w-4 h-4 mr-2" />
                 )}
-                Sugestão IA
+                Refinar com IA
               </Button>
             </div>
             <Textarea
@@ -545,14 +557,14 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 variant="outline"
                 size="sm"
                 onClick={() => getAISuggestion('impact', 'impact')}
-                disabled={aiLoading}
+                disabled={aiLoading || !editingExperience.impact?.trim()}
               >
                 {aiLoading ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
                   <Sparkles className="w-4 h-4 mr-2" />
                 )}
-                Sugestão IA
+                Refinar com IA
               </Button>
             </div>
             <Textarea

@@ -11,7 +11,7 @@ serve(async (req) => {
   }
 
   try {
-    const { type, context } = await req.json();
+    const { type, context, fieldToRefine, currentText } = await req.json();
     console.log('Received request:', { type, context });
     
     const apiKey = Deno.env.get("GEMINI_API_KEY") as string;
@@ -21,6 +21,18 @@ serve(async (req) => {
     
     // Prompts específicos para cada tipo de campo
     switch (type) {
+      case "refine":
+        prompt = `Você é um assistente especializado em redação de currículos profissionais.
+
+Texto atual para refinar: "${currentText}"
+
+Contexto da experiência profissional: ${JSON.stringify(context, null, 2)}
+
+Refine e melhore o texto atual, tornando-o mais profissional, impactante e adequado para um currículo. 
+Mantenha as informações essenciais, mas melhore a estrutura, gramática e impacto.
+Seja conciso e objetivo.
+Responda apenas com o texto refinado, sem explicações ou comentários adicionais.`;
+        break;
       case "context":
         prompt = `Você é um assistente especializado em redação de currículos profissionais.
         
