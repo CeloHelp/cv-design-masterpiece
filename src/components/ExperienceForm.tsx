@@ -17,6 +17,7 @@ const ExperienceForm = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingExperience, setEditingExperience] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
+  const [showExamples, setShowExamples] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [starText, setStarText] = useState('');
 
@@ -402,9 +403,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
           'Plataforma de e-commerce B2B para conectar fornecedores e lojistas, facilitando pedidos e controle de estoque para empresas do varejo.',
           'Aplicativo mobile de delivery para restaurantes locais, permitindo que clientes façam pedidos e acompanhem entregas em tempo real.',
           'Dashboard de analytics para equipe de marketing acompanhar campanhas digitais e ROI de investimentos publicitários.',
-          'API de integração entre ERP legado e novo sistema de vendas, sincronizando dados de produtos, clientes e pedidos automaticamente.',
-          'Portal interno para funcionários acessarem holerites, benefícios e solicitarem férias, substituindo processos manuais do RH.',
-          'Sistema de monitoramento IoT para fábrica acompanhar temperatura e umidade de equipamentos industriais em tempo real.'
+          'API de integração entre ERP legado e novo sistema de vendas, sincronizando dados de produtos, clientes e pedidos automaticamente.'
         ];
         
         return (
@@ -438,18 +437,28 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
             />
             
             <div className="space-y-2">
-              <Label className="text-sm font-medium">Exemplos para inspiração:</Label>
-              <div className="grid gap-2">
-                {contextSuggestions.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
-                    onClick={() => updateEditingExperience('context', suggestion)}
-                  >
-                    <p className="text-sm">{suggestion}</p>
-                  </div>
-                ))}
-              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowExamples(!showExamples)}
+                className="w-full"
+              >
+                {showExamples ? 'Ocultar exemplos' : 'Ver exemplos de respostas'}
+              </Button>
+              
+              {showExamples && (
+                <div className="grid gap-2">
+                  {contextSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => updateEditingExperience('context', suggestion)}
+                    >
+                      <p className="text-sm">{suggestion}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
