@@ -398,12 +398,15 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
 
       case 1: { // Contexto do Projeto
         const contextSuggestions = [
-          'Desenvolvimento de um novo sistema de gestão para automatizar processos internos.',
-          'Redesign da interface do usuário para melhorar a experiência e aumentar conversões.',
-          'Implementação de uma solução de análise de dados para apoiar decisões estratégicas.',
-          'Criação de uma plataforma de e-commerce para expandir vendas online.',
-          'Desenvolvimento de APIs para integração entre sistemas legados e novas aplicações.'
+          'Sistema de gestão hospitalar para automatizar agendamentos de consultas e exames, utilizado por médicos, enfermeiros e pacientes da clínica.',
+          'Plataforma de e-commerce B2B para conectar fornecedores e lojistas, facilitando pedidos e controle de estoque para empresas do varejo.',
+          'Aplicativo mobile de delivery para restaurantes locais, permitindo que clientes façam pedidos e acompanhem entregas em tempo real.',
+          'Dashboard de analytics para equipe de marketing acompanhar campanhas digitais e ROI de investimentos publicitários.',
+          'API de integração entre ERP legado e novo sistema de vendas, sincronizando dados de produtos, clientes e pedidos automaticamente.',
+          'Portal interno para funcionários acessarem holerites, benefícios e solicitarem férias, substituindo processos manuais do RH.',
+          'Sistema de monitoramento IoT para fábrica acompanhar temperatura e umidade de equipamentos industriais em tempo real.'
         ];
+        
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -422,12 +425,32 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 Sugestão IA
               </Button>
             </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Descreva o que o sistema ou funcionalidade fazia e para quem era destinado (usuários internos, clientes, pacientes, fornecedores, etc.)
+            </p>
+            
             <Textarea
               value={editingExperience.context}
               onChange={(e) => updateEditingExperience('context', e.target.value)}
-              placeholder="Descreva brevemente o contexto do projeto ou sua função"
+              placeholder="Ex: Sistema de gestão hospitalar para automatizar agendamentos, utilizado por médicos e pacientes..."
               rows={4}
             />
+            
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Exemplos para inspiração:</Label>
+              <div className="grid gap-2">
+                {contextSuggestions.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                    onClick={() => updateEditingExperience('context', suggestion)}
+                  >
+                    <p className="text-sm">{suggestion}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         );
       }
