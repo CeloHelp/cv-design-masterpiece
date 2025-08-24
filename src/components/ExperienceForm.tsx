@@ -18,6 +18,8 @@ const ExperienceForm = () => {
   const [editingExperience, setEditingExperience] = useState<any>(null);
   const [currentStep, setCurrentStep] = useState(0);
   const [showExamples, setShowExamples] = useState(false);
+  const [showContextSuggestions, setShowContextSuggestions] = useState(false);
+  const [showProblemSuggestions, setShowProblemSuggestions] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [starText, setStarText] = useState('');
 
@@ -476,9 +478,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 2: { // Problema/Necessidade
-        const [showProblemSuggestions, setShowProblemSuggestions] = useState(false);
-        
+      case 2: { // Problema/Necessidade        
         const problemSuggestions = [
           'Sistema legado sem documentação, com bugs frequentes e baixa performance',
           'Processo manual de aprovações que levava dias para ser concluído',
