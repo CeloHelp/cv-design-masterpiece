@@ -477,13 +477,16 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
       }
 
       case 2: { // Problema/Necessidade
+        const [showProblemSuggestions, setShowProblemSuggestions] = useState(false);
+        
         const problemSuggestions = [
-          'Baixa performance de aplicações web ou sistemas lentos.',
-          'Interface pouco intuitiva para usuários ou baixa taxa de conversão.',
-          'Processos manuais e repetitivos, falta de automação.',
-          'Falta de integração entre sistemas ou dados espalhados.',
-          'Falta de relatórios e indicadores para tomada de decisão.'
+          'Sistema legado sem documentação, com bugs frequentes e baixa performance',
+          'Processo manual de aprovações que levava dias para ser concluído',
+          'Falta de integração entre sistemas, causando retrabalho e inconsistências',
+          'Interface confusa que gerava muitas dúvidas dos usuários e baixa produtividade',
+          'Ausência de relatórios gerenciais para tomada de decisões estratégicas'
         ];
+        
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -502,6 +505,32 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 Refinar com IA
               </Button>
             </div>
+            
+            <div className="mb-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowProblemSuggestions(!showProblemSuggestions)}
+                className="text-blue-600 hover:text-blue-800"
+              >
+                {showProblemSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
+              </Button>
+              
+              {showProblemSuggestions && (
+                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm font-medium text-blue-800 mb-2">Exemplos de problemas/necessidades:</p>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    {problemSuggestions.map((suggestion, index) => (
+                      <li key={index} className="flex items-start">
+                        <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
+                        {suggestion}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+            
             <Textarea
               value={editingExperience.problem}
               onChange={(e) => updateEditingExperience('problem', e.target.value)}
