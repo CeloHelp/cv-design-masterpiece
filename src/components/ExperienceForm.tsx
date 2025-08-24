@@ -20,6 +20,8 @@ const ExperienceForm = () => {
   const [showExamples, setShowExamples] = useState(false);
   const [showContextSuggestions, setShowContextSuggestions] = useState(false);
   const [showProblemSuggestions, setShowProblemSuggestions] = useState(false);
+  const [showSolutionSuggestions, setShowSolutionSuggestions] = useState(false);
+  const [showImpactSuggestions, setShowImpactSuggestions] = useState(false);
   const [aiLoading, setAiLoading] = useState(false);
   const [starText, setStarText] = useState('');
 
@@ -506,27 +508,27 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
               </Button>
             </div>
             
-            <div className="mb-4">
+            <div className="space-y-2">
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
                 onClick={() => setShowProblemSuggestions(!showProblemSuggestions)}
-                className="text-blue-600 hover:text-blue-800"
+                className="w-full"
               >
                 {showProblemSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
               </Button>
               
               {showProblemSuggestions && (
-                <div className="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <p className="text-sm font-medium text-blue-800 mb-2">Exemplos de problemas/necessidades:</p>
-                  <ul className="text-sm text-blue-700 space-y-1">
-                    {problemSuggestions.map((suggestion, index) => (
-                      <li key={index} className="flex items-start">
-                        <span className="w-2 h-2 bg-blue-400 rounded-full mt-2 mr-2 flex-shrink-0"></span>
-                        {suggestion}
-                      </li>
-                    ))}
-                  </ul>
+                <div className="grid gap-2">
+                  {problemSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => updateEditingExperience('problem', suggestion)}
+                    >
+                      <p className="text-sm">{suggestion}</p>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -543,12 +545,13 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
 
       case 3: { // Solução e Tecnologias
         const solutionSuggestions = [
-          'Implementou automações e integrações para eliminar tarefas manuais utilizando JavaScript e Node.js.',
-          'Redesenhou a interface do sistema com foco em usabilidade utilizando React e Material UI.',
-          'Desenvolveu APIs e conectores para integração entre sistemas utilizando Python e FastAPI.',
-          'Criou dashboards e relatórios automáticos para gestores utilizando Power BI e SQL.',
-          'Refatorou código legado e implementou testes automatizados utilizando Jest e Cypress.'
+          'Implementou automações e integrações para eliminar tarefas manuais utilizando JavaScript e Node.js',
+          'Redesenhou a interface do sistema com foco em usabilidade utilizando React e Material UI',
+          'Desenvolveu APIs e conectores para integração entre sistemas utilizando Python e FastAPI',
+          'Criou dashboards e relatórios automáticos para gestores utilizando Power BI e SQL',
+          'Refatorou código legado e implementou testes automatizados utilizando Jest e Cypress'
         ];
+        
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -567,6 +570,32 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 Refinar com IA
               </Button>
             </div>
+            
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSolutionSuggestions(!showSolutionSuggestions)}
+                className="w-full"
+              >
+                {showSolutionSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
+              </Button>
+              
+              {showSolutionSuggestions && (
+                <div className="grid gap-2">
+                  {solutionSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => updateEditingExperience('solution', suggestion)}
+                    >
+                      <p className="text-sm">{suggestion}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <Textarea
               value={editingExperience.solution}
               onChange={(e) => updateEditingExperience('solution', e.target.value)}
@@ -577,7 +606,15 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 4: // Impacto/Resultados
+      case 4: { // Impacto/Resultados
+        const impactSuggestions = [
+          'Reduziu tempo de processamento de pedidos em 60% e aumentou satisfação do cliente para 95%',
+          'Implementou melhorias que resultaram em economia de R$ 120.000 anuais para a empresa',
+          'Aumentou produtividade da equipe em 40% através de automações e otimizações de processo',
+          'Melhorou a taxa de conversão do site em 35% gerando R$ 200.000 adicionais em vendas',
+          'Reduziu bugs em produção em 80% e tempo de resposta do sistema de 3s para 500ms'
+        ];
+        
         return (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
@@ -596,6 +633,32 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 Refinar com IA
               </Button>
             </div>
+            
+            <div className="space-y-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowImpactSuggestions(!showImpactSuggestions)}
+                className="w-full"
+              >
+                {showImpactSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
+              </Button>
+              
+              {showImpactSuggestions && (
+                <div className="grid gap-2">
+                  {impactSuggestions.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
+                      onClick={() => updateEditingExperience('impact', suggestion)}
+                    >
+                      <p className="text-sm">{suggestion}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <Textarea
               value={editingExperience.impact}
               onChange={(e) => updateEditingExperience('impact', e.target.value)}
@@ -604,6 +667,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
             />
           </div>
         );
+      }
 
       case 5: // Texto STAR
         return (
