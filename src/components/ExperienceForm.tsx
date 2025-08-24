@@ -8,9 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { DatePicker } from '@/components/ui/date-picker';
 import { useCVContext } from '@/contexts/CVContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Briefcase, Plus, Trash2, ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from 'lucide-react';
+import { format, parse } from 'date-fns';
 
 const ExperienceForm = () => {
   const { experiences, updateExperiences } = useCVContext();
@@ -64,8 +66,26 @@ const ExperienceForm = () => {
     setIsModalOpen(true);
   };
 
-  const updateEditingExperience = (field: string, value: string | boolean) => {
-    setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
+  const updateEditingExperience = (field: string, value: string | boolean | Date) => {
+    if (value instanceof Date) {
+      // Para datas, convertemos para formato YYYY-MM para compatibilidade
+      const formattedDate = format(value, 'yyyy-MM');
+      setEditingExperience((prev: any) => ({ ...prev, [field]: formattedDate }));
+    } else {
+      setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
+    }
+  };
+
+  // Função auxiliar para converter string de data para Date object
+  const parseDate = (dateString: string): Date | undefined => {
+    if (!dateString) return undefined;
+    try {
+      // Se já estiver no formato YYYY-MM, parseamos corretamente
+      const parsedDate = parse(dateString + '-01', 'yyyy-MM-dd', new Date());
+      return parsedDate;
+    } catch {
+      return undefined;
+    }
   };
 
   const saveExperience = () => {
@@ -361,21 +381,27 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="startDate">Data de Início</Label>
-                  <Input
-                    id="startDate"
-                    type="month"
-                    value={editingExperience.startDate}
-                    onChange={(e) => updateEditingExperience('startDate', e.target.value)}
+                  <DatePicker
+                    date={parseDate(editingExperience.startDate)}
+                    onSelect={(date) => {
+                      if (date) {
+                        updateEditingExperience('startDate', date);
+                      }
+                    }}
+                    placeholder="Selecione a data de início"
                   />
                 </div>
 
                 <div>
                   <Label htmlFor="endDate">Data de Término</Label>
-                  <Input
-                    id="endDate"
-                    type="month"
-                    value={editingExperience.endDate}
-                    onChange={(e) => updateEditingExperience('endDate', e.target.value)}
+                  <DatePicker
+                    date={parseDate(editingExperience.endDate)}
+                    onSelect={(date) => {
+                      if (date) {
+                        updateEditingExperience('endDate', date);
+                      }
+                    }}
+                    placeholder="Selecione a data de término"
                     disabled={editingExperience.current}
                   />
                 </div>
