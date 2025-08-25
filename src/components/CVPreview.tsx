@@ -17,11 +17,24 @@ const CVPreview: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     if (!dateString) return '';
-    const date = new Date(dateString + '-01');
-    return date.toLocaleDateString('pt-BR', { 
-      month: 'long', 
-      year: 'numeric' 
-    });
+    try {
+      // Se a string está no formato YYYY-MM-DD, usa diretamente
+      // Se está no formato YYYY-MM, adiciona o dia
+      let dateToFormat = dateString;
+      if (dateString.match(/^\d{4}-\d{2}$/)) {
+        dateToFormat = dateString + '-01';
+      }
+      
+      const date = new Date(dateToFormat);
+      if (isNaN(date.getTime())) return 'Invalid Date';
+      
+      return date.toLocaleDateString('pt-BR', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+    } catch {
+      return 'Invalid Date';
+    }
   };
 
   const skillsArray = skills.split(',').map(skill => skill.trim()).filter(skill => skill);
