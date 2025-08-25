@@ -13,6 +13,7 @@ import { useCVContext } from '@/contexts/CVContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Briefcase, Plus, Trash2, ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from 'lucide-react';
 import { format, parse } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 const ExperienceForm = () => {
   const { experiences, updateExperiences } = useCVContext();
@@ -68,8 +69,9 @@ const ExperienceForm = () => {
 
   const updateEditingExperience = (field: string, value: string | boolean | Date) => {
     if (value instanceof Date) {
-      // Para datas, convertemos para formato ISO string para compatibilidade
-      setEditingExperience((prev: any) => ({ ...prev, [field]: value.toISOString() }));
+      // Para datas, convertemos para formato YYYY-MM-DD para compatibilidade
+      const formattedDate = format(value, 'yyyy-MM-dd');
+      setEditingExperience((prev: any) => ({ ...prev, [field]: formattedDate }));
     } else {
       setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
     }
@@ -79,7 +81,13 @@ const ExperienceForm = () => {
   const parseDate = (dateString: string): Date | undefined => {
     if (!dateString) return undefined;
     try {
-      return new Date(dateString);
+      // Se a string está no formato YYYY-MM-DD, criamos uma data válida
+      if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        return new Date(dateString + 'T00:00:00.000Z');
+      }
+      // Para outros formatos, tentamos parsing direto
+      const parsed = new Date(dateString);
+      return isNaN(parsed.getTime()) ? undefined : parsed;
     } catch {
       return undefined;
     }
@@ -760,9 +768,9 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
                 <div>
                   <h4 className="font-medium">{exp.company || 'Nova Experiência'}</h4>
                   <p className="text-sm text-muted-foreground">{exp.position}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {exp.startDate} - {exp.current ? 'Atual' : exp.endDate}
-                  </p>
+                   <p className="text-xs text-muted-foreground">
+                     {exp.startDate ? format(parseDate(exp.startDate) || new Date(), 'MMM yyyy', { locale: ptBR }) : ''} - {exp.current ? 'Atual' : exp.endDate ? format(parseDate(exp.endDate) || new Date(), 'MMM yyyy', { locale: ptBR }) : ''}
+                   </p>
                 </div>
                 <Button
                   variant="ghost"
