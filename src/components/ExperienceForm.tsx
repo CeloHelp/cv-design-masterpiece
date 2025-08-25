@@ -68,9 +68,8 @@ const ExperienceForm = () => {
 
   const updateEditingExperience = (field: string, value: string | boolean | Date) => {
     if (value instanceof Date) {
-      // Para datas, convertemos para formato YYYY-MM para compatibilidade
-      const formattedDate = format(value, 'yyyy-MM');
-      setEditingExperience((prev: any) => ({ ...prev, [field]: formattedDate }));
+      // Para datas, convertemos para formato ISO string para compatibilidade
+      setEditingExperience((prev: any) => ({ ...prev, [field]: value.toISOString() }));
     } else {
       setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
     }
@@ -80,9 +79,7 @@ const ExperienceForm = () => {
   const parseDate = (dateString: string): Date | undefined => {
     if (!dateString) return undefined;
     try {
-      // Se já estiver no formato YYYY-MM, parseamos corretamente
-      const parsedDate = parse(dateString + '-01', 'yyyy-MM-dd', new Date());
-      return parsedDate;
+      return new Date(dateString);
     } catch {
       return undefined;
     }
