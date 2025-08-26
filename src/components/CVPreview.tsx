@@ -98,15 +98,34 @@ const CVPreview: React.FC = () => {
                     </span>
                   </div>
                   <div className="space-y-2 text-sm">
-                    {exp.starText ? (
-                      <div className="text-gray-700">{exp.starText}</div>
-                    ) : (
-                      <>
-                        {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                        {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                        {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
-                        {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
-                      </>
+                    {/* Exibir tarefas se existirem */}
+                    {exp.tasks && exp.tasks.length > 0 && (
+                      <div>
+                        <ul className="space-y-1 ml-0">
+                          {exp.tasks.map((task: any) => (
+                            task.description && (
+                              <li key={task.id} className="flex items-start gap-2">
+                                <span className="text-blue-600 text-xs mt-1">•</span>
+                                <span className="text-gray-700 flex-1">{task.description}</span>
+                              </li>
+                            )
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Exibir texto STAR ou campos individuais se não há tarefas */}
+                    {(!exp.tasks || exp.tasks.length === 0) && (
+                      exp.starText ? (
+                        <div className="text-gray-700">{exp.starText}</div>
+                      ) : (
+                        <>
+                          {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                          {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                          {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                          {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                        </>
+                      )
                     )}
                   </div>
                 </div>
@@ -224,15 +243,34 @@ const CVPreview: React.FC = () => {
                     </p>
                   </div>
                   <div className="space-y-1 text-sm">
-                    {exp.starText ? (
-                      <div className="text-gray-700">{exp.starText}</div>
-                    ) : (
-                      <>
-                        {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                        {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                        {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
-                        {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
-                      </>
+                    {/* Exibir tarefas se existirem */}
+                    {exp.tasks && exp.tasks.length > 0 && (
+                      <div>
+                        <ul className="space-y-1 ml-0">
+                          {exp.tasks.map((task: any) => (
+                            task.description && (
+                              <li key={task.id} className="flex items-start gap-2">
+                                <span className="text-gray-600 text-xs mt-1">•</span>
+                                <span className="text-gray-700 flex-1">{task.description}</span>
+                              </li>
+                            )
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                    
+                    {/* Exibir texto STAR ou campos individuais se não há tarefas */}
+                    {(!exp.tasks || exp.tasks.length === 0) && (
+                      exp.starText ? (
+                        <div className="text-gray-700">{exp.starText}</div>
+                      ) : (
+                        <>
+                          {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                          {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                          {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                          {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                        </>
+                      )
                     )}
                   </div>
                 </div>
@@ -355,15 +393,34 @@ const CVPreview: React.FC = () => {
                       </span>
                     </div>
                     <div className="space-y-1 text-sm">
-                      {exp.starText ? (
-                        <div className="text-gray-700">{exp.starText}</div>
-                      ) : (
-                        <>
-                          {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
-                          {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
-                          {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
-                          {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
-                        </>
+                      {/* Exibir tarefas se existirem */}
+                      {exp.tasks && exp.tasks.length > 0 && (
+                        <div>
+                          <ul className="space-y-1 ml-0">
+                            {exp.tasks.map((task: any) => (
+                              task.description && (
+                                <li key={task.id} className="flex items-start gap-2">
+                                  <span className="text-purple-600 text-xs mt-1">•</span>
+                                  <span className="text-gray-700 flex-1">{task.description}</span>
+                                </li>
+                              )
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {/* Exibir texto STAR ou campos individuais se não há tarefas */}
+                      {(!exp.tasks || exp.tasks.length === 0) && (
+                        exp.starText ? (
+                          <div className="text-gray-700">{exp.starText}</div>
+                        ) : (
+                          <>
+                            {exp.problem && <div><strong>Problema:</strong> <span className="text-gray-700">{exp.problem}</span></div>}
+                            {exp.solution && <div><strong>Solução:</strong> <span className="text-gray-700">{exp.solution}</span></div>}
+                            {exp.technologies && <div><strong>Tecnologias:</strong> <span className="text-gray-700">{exp.technologies}</span></div>}
+                            {exp.impact && <div><strong>Impacto:</strong> <span className="text-gray-700">{exp.impact}</span></div>}
+                          </>
+                        )
                       )}
                     </div>
                   </div>

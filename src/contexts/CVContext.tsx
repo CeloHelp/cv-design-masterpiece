@@ -17,6 +17,11 @@ interface Objective {
   goal: string;
 }
 
+interface Task {
+  id: string;
+  description: string;
+}
+
 interface Experience {
   id: string;
   company: string;
@@ -31,6 +36,7 @@ interface Experience {
   technologies: string;
   impact: string;
   starText: string;
+  tasks: Task[];
 }
 
 interface Education {

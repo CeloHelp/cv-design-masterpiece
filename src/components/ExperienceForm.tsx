@@ -28,9 +28,10 @@ const ExperienceForm = () => {
   const [aiLoading, setAiLoading] = useState(false);
   const [starText, setStarText] = useState('');
 
-  // Etapas do formulário - Unindo Solução e Tecnologias
+  // Etapas do formulário - Adicionando etapa de Tarefas
   const steps = [
     { title: 'Informações Básicas', required: ['company', 'position'] },
+    { title: 'Tarefas Realizadas', required: ['tasks'] },
     { title: 'Contexto do Projeto', required: ['context'] },
     { title: 'Problema/Necessidade', required: ['problem'] },
     { title: 'Solução e Tecnologias', required: ['solution'] },
@@ -54,7 +55,8 @@ const ExperienceForm = () => {
       solution: '',
       technologies: '',
       impact: '',
-      starText: ''
+      starText: '',
+      tasks: []
     };
     setEditingExperience(newExperience);
     setCurrentStep(0);
@@ -130,8 +132,37 @@ const ExperienceForm = () => {
     const requiredFields = steps[currentStep].required;
     return requiredFields.some(field => {
       if (field === 'current' || field === 'isPersonalProject') return true;
+      if (field === 'tasks') return editingExperience.tasks && editingExperience.tasks.length > 0;
       return editingExperience[field]?.trim();
     });
+  };
+
+  // Funções para gerenciar tarefas
+  const addTask = () => {
+    const newTask = {
+      id: Date.now().toString(),
+      description: ''
+    };
+    setEditingExperience((prev: any) => ({
+      ...prev,
+      tasks: [...(prev.tasks || []), newTask]
+    }));
+  };
+
+  const updateTask = (taskId: string, description: string) => {
+    setEditingExperience((prev: any) => ({
+      ...prev,
+      tasks: prev.tasks.map((task: any) => 
+        task.id === taskId ? { ...task, description } : task
+      )
+    }));
+  };
+
+  const removeTask = (taskId: string) => {
+    setEditingExperience((prev: any) => ({
+      ...prev,
+      tasks: prev.tasks.filter((task: any) => task.id !== taskId)
+    }));
   };
 
   // Sugestões manuais organizadas por tipo e cargo
@@ -444,7 +475,75 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
           </div>
         );
 
-      case 1: { // Contexto do Projeto
+      case 1: // Tarefas Realizadas
+        return (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <Label>Quais tarefas específicas você realizou nesta experiência?</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addTask}
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Adicionar Tarefa
+              </Button>
+            </div>
+            
+            <p className="text-sm text-muted-foreground">
+              Liste as principais atividades que você desenvolveu. Cada tarefa será exibida como um ponto separado no seu currículo.
+            </p>
+            
+            <div className="space-y-3">
+              {editingExperience.tasks && editingExperience.tasks.length > 0 ? (
+                editingExperience.tasks.map((task: any, index: number) => (
+                  <div key={task.id} className="flex gap-2 items-start">
+                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
+                      <span className="text-xs font-medium text-primary">{index + 1}</span>
+                    </div>
+                    <div className="flex-1">
+                      <Textarea
+                        value={task.description}
+                        onChange={(e) => updateTask(task.id, e.target.value)}
+                        placeholder="Ex: Implementou sistema de autenticação OAuth2 que aumentou a segurança em 40%"
+                        rows={2}
+                        className="resize-none"
+                      />
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => removeTask(task.id)}
+                      className="mt-1"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
+                  <Plus className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <p>Nenhuma tarefa adicionada ainda</p>
+                  <p className="text-sm">Clique em "Adicionar Tarefa" para começar</p>
+                </div>
+              )}
+            </div>
+
+            {editingExperience.tasks && editingExperience.tasks.length > 0 && (
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h4 className="font-medium mb-2">💡 Dicas para tarefas impactantes:</h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• Use números e métricas sempre que possível (Ex: "Aumentou em 30%")</li>
+                  <li>• Comece com verbos de ação (Ex: "Desenvolveu", "Implementou", "Liderou")</li>
+                  <li>• Foque nos resultados e impactos das suas ações</li>
+                  <li>• Mencione tecnologias e ferramentas específicas utilizadas</li>
+                </ul>
+              </div>
+            )}
+          </div>
+        );
+
+      case 2: { // Contexto do Projeto
         const contextSuggestions = [
           'Sistema de gestão hospitalar para automatizar agendamentos de consultas e exames, utilizado por médicos, enfermeiros e pacientes da clínica.',
           'Plataforma de e-commerce B2B para conectar fornecedores e lojistas, facilitando pedidos e controle de estoque para empresas do varejo.',
@@ -511,7 +610,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 2: { // Problema/Necessidade        
+      case 3: { // Problema/Necessidade        
         const problemSuggestions = [
           'Sistema legado sem documentação, com bugs frequentes e baixa performance',
           'Processo manual de aprovações que levava dias para ser concluído',
@@ -574,7 +673,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 3: { // Solução e Tecnologias
+      case 4: { // Solução e Tecnologias
         const solutionSuggestions = [
           'Implementou automações e integrações para eliminar tarefas manuais utilizando JavaScript e Node.js',
           'Redesenhou a interface do sistema com foco em usabilidade utilizando React e Material UI',
@@ -637,7 +736,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 4: { // Impacto/Resultados
+      case 5: { // Impacto/Resultados
         const impactSuggestions = [
           'Reduziu tempo de processamento de pedidos em 60% e aumentou satisfação do cliente para 95%',
           'Implementou melhorias que resultaram em economia de R$ 120.000 anuais para a empresa',
@@ -700,7 +799,7 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
         );
       }
 
-      case 5: // Texto STAR
+      case 6: // Texto STAR
         return (
           <div className="space-y-4">
             <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
