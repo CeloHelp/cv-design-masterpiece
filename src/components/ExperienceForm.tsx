@@ -934,10 +934,43 @@ Responda apenas com o texto sugerido, sem explicações ou comentários adiciona
 
               <div className="flex gap-2">
                 {currentStep === steps.length - 1 ? (
-                  <Button onClick={saveExperience} className="flex items-center gap-2">
-                    <Check className="w-4 h-4" />
-                    Salvar Experiência
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button onClick={saveExperience} className="flex items-center gap-2">
+                      <Check className="w-4 h-4" />
+                      Salvar Experiência
+                    </Button>
+                    <Button 
+                      onClick={() => {
+                        // Salva a experiência atual
+                        saveExperience();
+                        // Volta para a etapa 1 para adicionar nova tarefa
+                        setCurrentStep(0);
+                        // Cria uma nova experiência baseada na atual
+                        const newTask = {
+                          id: Date.now().toString(),
+                          company: editingExperience.company,
+                          position: editingExperience.position,
+                          startDate: editingExperience.startDate,
+                          endDate: editingExperience.endDate,
+                          current: editingExperience.current,
+                          isPersonalProject: editingExperience.isPersonalProject,
+                          context: '',
+                          problem: '',
+                          solution: '',
+                          technologies: '',
+                          impact: '',
+                          starText: '',
+                          tasks: []
+                        };
+                        setEditingExperience(newTask);
+                      }}
+                      variant="outline"
+                      className="flex items-center gap-2"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Adicionar Nova Tarefa
+                    </Button>
+                  </div>
                 ) : (
                   <Button
                     onClick={nextStep}
