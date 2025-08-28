@@ -17,9 +17,13 @@ interface Objective {
   goal: string;
 }
 
-interface Task {
+interface Achievement {
   id: string;
-  description: string;
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+  finalDescription: string;
 }
 
 interface Experience {
@@ -30,13 +34,7 @@ interface Experience {
   endDate: string;
   current: boolean;
   isPersonalProject: boolean;
-  context: string;
-  problem: string;
-  solution: string;
-  technologies: string;
-  impact: string;
-  starText: string;
-  tasks: Task[];
+  achievements: Achievement[];
 }
 
 interface Education {

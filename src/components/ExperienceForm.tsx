@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -6,43 +5,41 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { DatePicker } from '@/components/ui/date-picker';
 import { useCVContext } from '@/contexts/CVContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Briefcase, Plus, Trash2, ArrowLeft, ArrowRight, Check, Sparkles, Loader2 } from 'lucide-react';
-import { format, parse } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { Briefcase, Plus, Trash2, Check, Sparkles, Loader2 } from 'lucide-react';
+import { format } from 'date-fns';
+
+interface Achievement {
+  id: string;
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+  finalDescription: string;
+}
+
+interface Experience {
+  id: string;
+  company: string;
+  position: string;
+  startDate: string;
+  endDate: string;
+  current: boolean;
+  isPersonalProject: boolean;
+  achievements: Achievement[];
+}
 
 const ExperienceForm = () => {
   const { experiences, updateExperiences } = useCVContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingExperience, setEditingExperience] = useState<any>(null);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [showExamples, setShowExamples] = useState(false);
-  const [showContextSuggestions, setShowContextSuggestions] = useState(false);
-  const [showProblemSuggestions, setShowProblemSuggestions] = useState(false);
-  const [showSolutionSuggestions, setShowSolutionSuggestions] = useState(false);
-  const [showImpactSuggestions, setShowImpactSuggestions] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [starText, setStarText] = useState('');
-
-  // Etapas do formulário - Adicionando etapa de Tarefas
-  const steps = [
-    { title: 'Informações Básicas', required: ['company', 'position'] },
-    { title: 'Tarefas Realizadas', required: ['tasks'] },
-    { title: 'Contexto do Projeto', required: ['context'] },
-    { title: 'Problema/Necessidade', required: ['problem'] },
-    { title: 'Solução e Tecnologias', required: ['solution'] },
-    { title: 'Impacto/Resultados', required: ['impact'] },
-    { title: 'Texto STAR', required: ['starText'] }
-  ];
-
-  const progress = ((currentStep + 1) / steps.length) * 100;
+  const [editingExperience, setEditingExperience] = useState<Experience | null>(null);
+  const [aiLoading, setAiLoading] = useState<{[key: string]: boolean}>({});
 
   const addExperience = () => {
-    const newExperience = {
+    const newExperience: Experience = {
       id: Date.now().toString(),
       company: '',
       position: '',
@@ -50,44 +47,41 @@ const ExperienceForm = () => {
       endDate: '',
       current: false,
       isPersonalProject: false,
-      context: '',
-      problem: '',
-      solution: '',
-      technologies: '',
-      impact: '',
-      starText: '',
-      tasks: []
+      achievements: [{
+        id: Date.now().toString(),
+        situation: '',
+        task: '',
+        action: '',
+        result: '',
+        finalDescription: ''
+      }]
     };
     setEditingExperience(newExperience);
-    setCurrentStep(0);
     setIsModalOpen(true);
   };
 
-  const editExperience = (experience: any) => {
+  const editExperience = (experience: Experience) => {
     setEditingExperience({ ...experience });
-    setCurrentStep(0);
     setIsModalOpen(true);
   };
 
   const updateEditingExperience = (field: string, value: string | boolean | Date) => {
+    if (!editingExperience) return;
+    
     if (value instanceof Date) {
-      // Para datas, convertemos para formato YYYY-MM-DD para compatibilidade
       const formattedDate = format(value, 'yyyy-MM-dd');
-      setEditingExperience((prev: any) => ({ ...prev, [field]: formattedDate }));
+      setEditingExperience(prev => prev ? { ...prev, [field]: formattedDate } : null);
     } else {
-      setEditingExperience((prev: any) => ({ ...prev, [field]: value }));
+      setEditingExperience(prev => prev ? { ...prev, [field]: value } : null);
     }
   };
 
-  // Função auxiliar para converter string de data para Date object
   const parseDate = (dateString: string): Date | undefined => {
     if (!dateString) return undefined;
     try {
-      // Se a string está no formato YYYY-MM-DD, criamos uma data válida
       if (dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
         return new Date(dateString + 'T00:00:00.000Z');
       }
-      // Para outros formatos, tentamos parsing direto
       const parsed = new Date(dateString);
       return isNaN(parsed.getTime()) ? undefined : parsed;
     } catch {
@@ -107,7 +101,6 @@ const ExperienceForm = () => {
       }
       setIsModalOpen(false);
       setEditingExperience(null);
-      setCurrentStep(0);
     }
   };
 
@@ -115,221 +108,65 @@ const ExperienceForm = () => {
     updateExperiences(experiences.filter(exp => exp.id !== id));
   };
 
-  const nextStep = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    }
-  };
-
-  const prevStep = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
-  const canProceed = () => {
-    if (!editingExperience) return false;
-    const requiredFields = steps[currentStep].required;
-    return requiredFields.some(field => {
-      if (field === 'current' || field === 'isPersonalProject') return true;
-      if (field === 'tasks') return editingExperience.tasks && editingExperience.tasks.length > 0;
-      return editingExperience[field]?.trim();
-    });
-  };
-
-  // Funções para gerenciar tarefas
-  const addTask = () => {
-    const newTask = {
-      id: Date.now().toString(),
-      description: ''
-    };
-    setEditingExperience((prev: any) => ({
-      ...prev,
-      tasks: [...(prev.tasks || []), newTask]
-    }));
-  };
-
-  const updateTask = (taskId: string, description: string) => {
-    setEditingExperience((prev: any) => ({
-      ...prev,
-      tasks: prev.tasks.map((task: any) => 
-        task.id === taskId ? { ...task, description } : task
-      )
-    }));
-  };
-
-  const removeTask = (taskId: string) => {
-    setEditingExperience((prev: any) => ({
-      ...prev,
-      tasks: prev.tasks.filter((task: any) => task.id !== taskId)
-    }));
-  };
-
-  // Sugestões manuais organizadas por tipo e cargo
-  const getManualSuggestions = (type: string, position: string) => {
-    const suggestions = {
-      description: {
-        developer: [
-          "Desenvolveu aplicações web utilizando React, Node.js e MongoDB, implementando funcionalidades que aumentaram a produtividade da equipe em 25%.",
-          "Participou do desenvolvimento de APIs REST e integração com serviços de terceiros, garantindo alta performance e escalabilidade.",
-          "Colaborou com equipes multidisciplinares para implementar soluções inovadoras e manter a qualidade do código através de code reviews."
-        ],
-        designer: [
-          "Criou interfaces intuitivas e responsivas seguindo princípios de UX/UI, resultando em 30% de aumento na satisfação do usuário.",
-          "Desenvolveu sistemas de design consistentes e bibliotecas de componentes para acelerar o processo de desenvolvimento.",
-          "Realizou pesquisas com usuários e testes de usabilidade para validar soluções de design e otimizar a experiência do usuário."
-        ],
-        gerente: [
-          "Liderou equipe de 8 pessoas, implementando metodologias ágeis que aumentaram a produtividade em 40%.",
-          "Gerenciou orçamentos e recursos de projetos, garantindo entregas dentro do prazo e qualidade esperada.",
-          "Desenvolveu estratégias de crescimento e processos otimizados que reduziram custos operacionais em 20%."
-        ],
-        analista: [
-          "Analisou dados de negócio para identificar oportunidades de melhoria, gerando insights que impactaram positivamente os resultados.",
-          "Desenvolveu relatórios e dashboards para monitoramento de KPIs e suporte à tomada de decisões estratégicas.",
-          "Colaborou com diferentes departamentos para implementar soluções baseadas em dados e métricas de performance."
-        ],
-        default: [
-          "Executou tarefas com excelência, superando metas estabelecidas e contribuindo para o crescimento da empresa.",
-          "Colaborou efetivamente com equipes multifuncionais para atingir objetivos comuns e entregar resultados de qualidade.",
-          "Demonstrou proatividade e iniciativa na resolução de problemas e implementação de melhorias nos processos."
-        ]
-      },
-      problems: {
-        developer: [
-          "Baixa performance de aplicações web",
-          "Código legado difícil de manter",
-          "Falta de testes automatizados"
-        ],
-        designer: [
-          "Interface pouco intuitiva para usuários",
-          "Inconsistência visual entre produtos",
-          "Baixa taxa de conversão"
-        ],
-        gerente: [
-          "Baixa produtividade da equipe",
-          "Processos ineficientes",
-          "Falta de comunicação entre departamentos"
-        ],
-        analista: [
-          "Dados espalhados em diferentes sistemas",
-          "Relatórios manuais demorados",
-          "Falta de insights para tomada de decisão"
-        ],
-        default: [
-          "Processos manuais e repetitivos",
-          "Falta de padronização",
-          "Comunicação ineficiente"
-        ]
-      },
-      solutions: {
-        developer: [
-          "Implementou otimizações que reduziram tempo de carregamento em 60%",
-          "Refatorou código legado seguindo boas práticas de Clean Code",
-          "Criou suíte de testes automatizados com cobertura de 90%"
-        ],
-        designer: [
-          "Redesenhou interface baseada em pesquisa com usuários",
-          "Desenvolveu design system unificado",
-          "Implementou A/B tests que aumentaram conversão em 25%"
-        ],
-        gerente: [
-          "Implementou metodologias ágeis (Scrum/Kanban)",
-          "Criou workflows otimizados que reduziram retrabalho",
-          "Estabeleceu canais de comunicação eficientes"
-        ],
-        analista: [
-          "Implementou data warehouse centralizado",
-          "Automatizou relatórios usando ferramentas de BI",
-          "Criou dashboards interativos para análise em tempo real"
-        ],
-        default: [
-          "Automatizou processos manuais usando ferramentas digitais",
-          "Criou documentação e padrões de trabalho",
-          "Implementou sistema de comunicação mais eficiente"
-        ]
-      },
-      technologies: {
-        developer: [
-          "React, Node.js, JavaScript, TypeScript, MongoDB, PostgreSQL, Git, Docker",
-          "Python, Django, REST APIs, GraphQL, AWS, Firebase, Jest, Cypress",
-          "Vue.js, Angular, Express, MySQL, Redis, Kubernetes, CI/CD"
-        ],
-        designer: [
-          "Figma, Adobe Creative Suite, Sketch, InVision, Principle, Zeplin",
-          "Adobe XD, Framer, Miro, Hotjar, Google Analytics, Maze",
-          "Canva, After Effects, Photoshop, Illustrator, Webflow"
-        ],
-        analista: [
-          "Excel, Power BI, Tableau, SQL, Python, R, Google Analytics",
-          "Looker, Qlik, SPSS, SAS, Jupyter, Pandas, NumPy",
-          "Salesforce, HubSpot, Google Data Studio, BigQuery"
-        ],
-        default: [
-          "Microsoft Office, Google Workspace, Slack, Trello, Asana",
-          "Jira, Confluence, Notion, Zoom, Teams, CRM, ERP",
-          "Monday.com, ClickUp, Zapier, Airtable, Calendly"
-        ]
-      },
-      impact: {
-        developer: [
-          "Aumentou performance da aplicação em 60% e reduziu bugs em 40%",
-          "Implementou funcionalidades que geraram 15% de aumento na receita",
-          "Reduziu tempo de desenvolvimento em 30% através de automações"
-        ],
-        designer: [
-          "Aumentou taxa de conversão em 25% e satisfação do usuário em 30%",
-          "Reduziu tempo de design em 40% com sistema de componentes",
-          "Melhorou usabilidade resultando em 50% menos suporte ao usuário"
-        ],
-        gerente: [
-          "Aumentou produtividade da equipe em 40% e reduziu turnover em 30%",
-          "Implementou processos que reduziram custos operacionais em 20%",
-          "Melhorou entrega de projetos, atingindo 95% no prazo"
-        ],
-        analista: [
-          "Identificou oportunidades que resultaram em 20% de aumento na receita",
-          "Automatizou relatórios, economizando 15 horas semanais",
-          "Criou insights que melhoraram tomada de decisão em 35%"
-        ],
-        default: [
-          "Aumentou eficiência operacional em 25%",
-          "Reduziu custos de processos em 15%",
-          "Melhorou qualidade do atendimento ao cliente"
-        ]
-      }
-    };
-
-    // Determina categoria baseada no cargo
-    const getCategory = (position: string) => {
-      const pos = position.toLowerCase();
-      if (pos.includes('desenvolv') || pos.includes('programador') || pos.includes('dev')) return 'developer';
-      if (pos.includes('design') || pos.includes('ui') || pos.includes('ux')) return 'designer';
-      if (pos.includes('gerente') || pos.includes('coordenador') || pos.includes('supervisor')) return 'gerente';
-      if (pos.includes('analista') || pos.includes('dados') || pos.includes('business')) return 'analista';
-      return 'default';
-    };
-
-    const category = getCategory(position);
-    return suggestions[type]?.[category] || suggestions[type]?.default || [];
-  };
-
-  const getAISuggestion = async (type: string, field: string) => {
-    const currentValue = editingExperience[field] as string;
+  const addAchievement = () => {
+    if (!editingExperience) return;
     
-    if (!currentValue?.trim()) {
+    const newAchievement: Achievement = {
+      id: Date.now().toString(),
+      situation: '',
+      task: '',
+      action: '',
+      result: '',
+      finalDescription: ''
+    };
+    
+    setEditingExperience(prev => prev ? {
+      ...prev,
+      achievements: [...prev.achievements, newAchievement]
+    } : null);
+  };
+
+  const updateAchievement = (achievementId: string, field: string, value: string) => {
+    if (!editingExperience) return;
+    
+    setEditingExperience(prev => prev ? {
+      ...prev,
+      achievements: prev.achievements.map(achievement =>
+        achievement.id === achievementId
+          ? { ...achievement, [field]: value }
+          : achievement
+      )
+    } : null);
+  };
+
+  const removeAchievement = (achievementId: string) => {
+    if (!editingExperience) return;
+    
+    setEditingExperience(prev => prev ? {
+      ...prev,
+      achievements: prev.achievements.filter(achievement => achievement.id !== achievementId)
+    } : null);
+  };
+
+  const refineWithAI = async (achievementId: string, field: string) => {
+    if (!editingExperience) return;
+    
+    const achievement = editingExperience.achievements.find(a => a.id === achievementId);
+    if (!achievement || !achievement[field as keyof Achievement]?.trim()) {
       alert('Preencha o campo primeiro para que a IA possa refiná-lo.');
       return;
     }
 
-    setAiLoading(true);
+    const loadingKey = `${achievementId}-${field}`;
+    setAiLoading(prev => ({ ...prev, [loadingKey]: true }));
+
     try {
       const { data, error } = await supabase.functions.invoke('field-suggestions', {
-        body: { 
-          type: 'refine', 
+        body: {
+          type: 'refine',
           context: editingExperience,
           fieldToRefine: field,
-          currentText: currentValue
+          currentText: achievement[field as keyof Achievement]
         },
       });
 
@@ -337,655 +174,379 @@ const ExperienceForm = () => {
         console.error('Erro ao obter sugestão da IA:', error);
         alert('Erro ao obter sugestão da IA. Tente novamente.');
       } else if (data && data.suggestion) {
-        updateEditingExperience(field, data.suggestion);
+        updateAchievement(achievementId, field, data.suggestion);
       }
     } catch (error) {
       console.error('Erro inesperado ao chamar a função de IA:', error);
       alert('Erro inesperado ao obter sugestão da IA.');
     } finally {
-      setAiLoading(false);
+      setAiLoading(prev => ({ ...prev, [loadingKey]: false }));
     }
   };
 
-  const generateStarText = async () => {
-    if (!editingExperience.context || !editingExperience.problem || !editingExperience.solution || !editingExperience.impact) {
-      alert('Por favor, preencha as informações de Contexto, Problema, Solução e Impacto antes de gerar o texto STAR.');
+  const generateDescription = async (achievementId: string) => {
+    if (!editingExperience) return;
+    
+    const achievement = editingExperience.achievements.find(a => a.id === achievementId);
+    if (!achievement || !achievement.situation || !achievement.task || !achievement.action || !achievement.result) {
+      alert('Preencha todos os campos STAR antes de gerar a descrição.');
       return;
     }
 
-    const prompt = `Com base nas informações fornecidas, crie um texto profissional seguindo o método STAR (Situação, Tarefa, Ação, Resultado) para um currículo. O texto deve ser corrido, bem estruturado e impactante, sem separar as seções. Foque em números e resultados quantitativos sempre que possível.
+    const loadingKey = `${achievementId}-description`;
+    setAiLoading(prev => ({ ...prev, [loadingKey]: true }));
 
-Informações fornecidas:
-- Contexto do Projeto (Situação): ${editingExperience.context}
-- Problema/Necessidade (Tarefa): ${editingExperience.problem}  
-- Solução Implementada (Ação): ${editingExperience.solution}
-- Impacto/Resultados (Resultado): ${editingExperience.impact}
+    const prompt = `Com base nas informações STAR fornecidas, crie um texto profissional para currículo que incorpore todos os elementos de forma natural e fluida:
 
-Gere um texto único, fluido e profissional que incorpore todos esses elementos de forma natural. O texto deve ter entre 3-5 linhas e ser adequado para aparecer diretamente no currículo como descrição da experiência profissional.
+Situação: ${achievement.situation}
+Tarefa: ${achievement.task}
+Ação: ${achievement.action}
+Resultado: ${achievement.result}
 
-Responda apenas com o texto sugerido, sem explicações ou comentários adicionais.`;
+Gere um texto único, fluido e profissional entre 2-4 linhas adequado para currículo.
+Responda apenas com o texto sugerido.`;
 
-    setAiLoading(true);
     try {
       const { data, error } = await supabase.functions.invoke('ai-suggestions', {
-        body: { type: 'star_text', prompt, experience: editingExperience }
+        body: { prompt }
       });
 
       if (error) {
-        console.error('Erro ao gerar texto STAR:', error);
-        alert('Erro ao gerar texto STAR. Tente novamente.');
+        console.error('Erro ao gerar descrição:', error);
+        alert('Erro ao gerar descrição. Tente novamente.');
       } else if (data && data.suggestion) {
-        updateEditingExperience('starText', data.suggestion);
+        updateAchievement(achievementId, 'finalDescription', data.suggestion);
       }
     } catch (error) {
-      console.error('Erro inesperado ao gerar texto STAR:', error);
-      alert('Erro inesperado ao gerar texto STAR.');
+      console.error('Erro inesperado ao gerar descrição:', error);
+      alert('Erro inesperado ao gerar descrição.');
     } finally {
-      setAiLoading(false);
-    }
-  };
-
-  // Renderiza o conteúdo de cada etapa
-  const renderStepContent = () => {
-    if (!editingExperience) return null;
-    
-    switch (currentStep) {
-      case 0: // Informações Básicas
-        return (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <Label htmlFor="company">Empresa/Organização</Label>
-                <Input
-                  id="company"
-                  value={editingExperience.company}
-                  onChange={(e) => updateEditingExperience('company', e.target.value)}
-                  placeholder="Nome da empresa ou organização"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="position">Cargo/Posição</Label>
-                <Input
-                  id="position"
-                  value={editingExperience.position}
-                  onChange={(e) => updateEditingExperience('position', e.target.value)}
-                  placeholder="Seu cargo ou função"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="startDate">Data de Início</Label>
-                  <DatePicker
-                    date={parseDate(editingExperience.startDate)}
-                    onSelect={(date) => {
-                      if (date) {
-                        updateEditingExperience('startDate', date);
-                      }
-                    }}
-                    placeholder="Selecione a data de início"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="endDate">Data de Término</Label>
-                  <DatePicker
-                    date={parseDate(editingExperience.endDate)}
-                    onSelect={(date) => {
-                      if (date) {
-                        updateEditingExperience('endDate', date);
-                      }
-                    }}
-                    placeholder="Selecione a data de término"
-                    disabled={editingExperience.current}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="current"
-                  checked={editingExperience.current}
-                  onCheckedChange={(checked) => {
-                    updateEditingExperience('current', !!checked);
-                    if (checked) {
-                      updateEditingExperience('endDate', '');
-                    }
-                  }}
-                />
-                <Label htmlFor="current" className="text-sm font-normal">
-                  Trabalho atual
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isPersonalProject"
-                  checked={editingExperience.isPersonalProject}
-                  onCheckedChange={(checked) => {
-                    updateEditingExperience('isPersonalProject', !!checked);
-                  }}
-                />
-                <Label htmlFor="isPersonalProject" className="text-sm font-normal">
-                  Projeto pessoal/freelance
-                </Label>
-              </div>
-            </div>
-          </div>
-        );
-
-      case 1: // Tarefas Realizadas
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Quais tarefas específicas você realizou nesta experiência?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={addTask}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Adicionar Tarefa
-              </Button>
-            </div>
-            
-            <p className="text-sm text-muted-foreground">
-              Liste as principais atividades que você desenvolveu. Cada tarefa será exibida como um ponto separado no seu currículo.
-            </p>
-            
-            <div className="space-y-3">
-              {editingExperience.tasks && editingExperience.tasks.length > 0 ? (
-                editingExperience.tasks.map((task: any, index: number) => (
-                  <div key={task.id} className="flex gap-2 items-start">
-                    <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-1">
-                      <span className="text-xs font-medium text-primary">{index + 1}</span>
-                    </div>
-                    <div className="flex-1">
-                      <Textarea
-                        value={task.description}
-                        onChange={(e) => updateTask(task.id, e.target.value)}
-                        placeholder="Ex: Implementou sistema de autenticação OAuth2 que aumentou a segurança em 40%"
-                        rows={2}
-                        className="resize-none"
-                      />
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => removeTask(task.id)}
-                      className="mt-1"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg">
-                  <Plus className="w-8 h-8 mx-auto mb-2 opacity-50" />
-                  <p>Nenhuma tarefa adicionada ainda</p>
-                  <p className="text-sm">Clique em "Adicionar Tarefa" para começar</p>
-                </div>
-              )}
-            </div>
-
-            {editingExperience.tasks && editingExperience.tasks.length > 0 && (
-              <div className="bg-muted/50 p-4 rounded-lg">
-                <h4 className="font-medium mb-2">💡 Dicas para tarefas impactantes:</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• Use números e métricas sempre que possível (Ex: "Aumentou em 30%")</li>
-                  <li>• Comece com verbos de ação (Ex: "Desenvolveu", "Implementou", "Liderou")</li>
-                  <li>• Foque nos resultados e impactos das suas ações</li>
-                  <li>• Mencione tecnologias e ferramentas específicas utilizadas</li>
-                </ul>
-              </div>
-            )}
-          </div>
-        );
-
-      case 2: { // Contexto do Projeto
-        const contextSuggestions = [
-          'Sistema de gestão hospitalar para automatizar agendamentos de consultas e exames, utilizado por médicos, enfermeiros e pacientes da clínica.',
-          'Plataforma de e-commerce B2B para conectar fornecedores e lojistas, facilitando pedidos e controle de estoque para empresas do varejo.',
-          'Aplicativo mobile de delivery para restaurantes locais, permitindo que clientes façam pedidos e acompanhem entregas em tempo real.',
-          'Dashboard de analytics para equipe de marketing acompanhar campanhas digitais e ROI de investimentos publicitários.',
-          'API de integração entre ERP legado e novo sistema de vendas, sincronizando dados de produtos, clientes e pedidos automaticamente.'
-        ];
-        
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Qual era o contexto do projeto?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('context', 'context')}
-                disabled={aiLoading || !editingExperience.context?.trim()}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Refinar com IA
-              </Button>
-            </div>
-            
-            <p className="text-sm text-muted-foreground">
-              Descreva o que o sistema ou funcionalidade fazia e para quem era destinado (usuários internos, clientes, pacientes, fornecedores, etc.)
-            </p>
-            
-            <Textarea
-              value={editingExperience.context}
-              onChange={(e) => updateEditingExperience('context', e.target.value)}
-              placeholder="Ex: Sistema de gestão hospitalar para automatizar agendamentos, utilizado por médicos e pacientes..."
-              rows={4}
-            />
-            
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowExamples(!showExamples)}
-                className="w-full"
-              >
-                {showExamples ? 'Ocultar exemplos' : 'Ver exemplos de respostas'}
-              </Button>
-              
-              {showExamples && (
-                <div className="grid gap-2">
-                  {contextSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => updateEditingExperience('context', suggestion)}
-                    >
-                      <p className="text-sm">{suggestion}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
-      }
-
-      case 3: { // Problema/Necessidade        
-        const problemSuggestions = [
-          'Sistema legado sem documentação, com bugs frequentes e baixa performance',
-          'Processo manual de aprovações que levava dias para ser concluído',
-          'Falta de integração entre sistemas, causando retrabalho e inconsistências',
-          'Interface confusa que gerava muitas dúvidas dos usuários e baixa produtividade',
-          'Ausência de relatórios gerenciais para tomada de decisões estratégicas'
-        ];
-        
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Qual era o problema, dor ou necessidade antes da sua atuação?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('problems', 'problem')}
-                disabled={aiLoading || !editingExperience.problem?.trim()}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Refinar com IA
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowProblemSuggestions(!showProblemSuggestions)}
-                className="w-full"
-              >
-                {showProblemSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
-              </Button>
-              
-              {showProblemSuggestions && (
-                <div className="grid gap-2">
-                  {problemSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => updateEditingExperience('problem', suggestion)}
-                    >
-                      <p className="text-sm">{suggestion}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <Textarea
-              value={editingExperience.problem}
-              onChange={(e) => updateEditingExperience('problem', e.target.value)}
-              placeholder="Descreva qual problema ou necessidade existia quando você chegou/iniciou"
-              rows={4}
-            />
-          </div>
-        );
-      }
-
-      case 4: { // Solução e Tecnologias
-        const solutionSuggestions = [
-          'Implementou automações e integrações para eliminar tarefas manuais utilizando JavaScript e Node.js',
-          'Redesenhou a interface do sistema com foco em usabilidade utilizando React e Material UI',
-          'Desenvolveu APIs e conectores para integração entre sistemas utilizando Python e FastAPI',
-          'Criou dashboards e relatórios automáticos para gestores utilizando Power BI e SQL',
-          'Refatorou código legado e implementou testes automatizados utilizando Jest e Cypress'
-        ];
-        
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>O que você fez para resolver e quais tecnologias utilizou?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('solutions', 'solution')}
-                disabled={aiLoading || !editingExperience.solution?.trim()}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Refinar com IA
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowSolutionSuggestions(!showSolutionSuggestions)}
-                className="w-full"
-              >
-                {showSolutionSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
-              </Button>
-              
-              {showSolutionSuggestions && (
-                <div className="grid gap-2">
-                  {solutionSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => updateEditingExperience('solution', suggestion)}
-                    >
-                      <p className="text-sm">{suggestion}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <Textarea
-              value={editingExperience.solution}
-              onChange={(e) => updateEditingExperience('solution', e.target.value)}
-              placeholder="Descreva as ações que você tomou e as tecnologias que utilizou"
-              rows={4}
-            />
-          </div>
-        );
-      }
-
-      case 5: { // Impacto/Resultados
-        const impactSuggestions = [
-          'Reduziu tempo de processamento de pedidos em 60% e aumentou satisfação do cliente para 95%',
-          'Implementou melhorias que resultaram em economia de R$ 120.000 anuais para a empresa',
-          'Aumentou produtividade da equipe em 40% através de automações e otimizações de processo',
-          'Melhorou a taxa de conversão do site em 35% gerando R$ 200.000 adicionais em vendas',
-          'Reduziu bugs em produção em 80% e tempo de resposta do sistema de 3s para 500ms'
-        ];
-        
-        return (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <Label>Qual foi o impacto ou resultado da sua atuação?</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => getAISuggestion('impact', 'impact')}
-                disabled={aiLoading || !editingExperience.impact?.trim()}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Refinar com IA
-              </Button>
-            </div>
-            
-            <div className="space-y-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowImpactSuggestions(!showImpactSuggestions)}
-                className="w-full"
-              >
-                {showImpactSuggestions ? "Ocultar exemplos" : "Ver exemplos de respostas"}
-              </Button>
-              
-              {showImpactSuggestions && (
-                <div className="grid gap-2">
-                  {impactSuggestions.map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted transition-colors"
-                      onClick={() => updateEditingExperience('impact', suggestion)}
-                    >
-                      <p className="text-sm">{suggestion}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-            
-            <Textarea
-              value={editingExperience.impact}
-              onChange={(e) => updateEditingExperience('impact', e.target.value)}
-              placeholder="Descreva o impacto e os resultados das suas ações"
-              rows={4}
-            />
-          </div>
-        );
-      }
-
-      case 6: // Texto STAR
-        return (
-          <div className="space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <h4 className="font-medium text-blue-800 mb-2">📝 Texto Final para o Currículo</h4>
-              <p className="text-sm text-blue-700">
-                Este será o texto que aparecerá no seu CV. Clique em "Gerar Texto STAR" para criar automaticamente 
-                um texto profissional baseado nas informações das etapas anteriores, ou escreva sua própria versão.
-              </p>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <Label>Texto da experiência para o currículo</Label>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={generateStarText}
-                disabled={aiLoading}
-              >
-                {aiLoading ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
-                  <Sparkles className="w-4 h-4 mr-2" />
-                )}
-                Gerar Texto STAR
-              </Button>
-            </div>
-            
-            <Textarea
-              value={editingExperience.starText}
-              onChange={(e) => updateEditingExperience('starText', e.target.value)}
-              placeholder="Clique em 'Gerar Texto STAR' para criar automaticamente ou escreva seu próprio texto aqui..."
-              rows={8}
-            />
-          </div>
-        );
-
-      default:
-        return null;
+      setAiLoading(prev => ({ ...prev, [loadingKey]: false }));
     }
   };
 
   return (
-    <div>
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
-              Experiência Profissional
-            </div>
-            <Button onClick={addExperience} size="sm">
-              <Plus className="w-4 h-4 mr-2" />
-              Adicionar
-            </Button>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {experiences.map((exp) => (
-            <div 
-              key={exp.id} 
-              className="border rounded-lg p-4 space-y-4 hover:shadow-md transition-shadow cursor-pointer"
-              onClick={() => editExperience(exp)}
-            >
-              <div className="flex justify-between items-start">
-                <div>
-                  <h4 className="font-medium">{exp.company || 'Nova Experiência'}</h4>
-                  <p className="text-sm text-muted-foreground">{exp.position}</p>
-                   <p className="text-xs text-muted-foreground">
-                     {exp.startDate ? format(parseDate(exp.startDate) || new Date(), 'MMM yyyy', { locale: ptBR }) : ''} - {exp.current ? 'Atual' : exp.endDate ? format(parseDate(exp.endDate) || new Date(), 'MMM yyyy', { locale: ptBR }) : ''}
-                   </p>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Briefcase className="w-5 h-5" />
+          Experiência Profissional
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          {experiences.map((experience) => (
+            <Card key={experience.id} className="cursor-pointer hover:bg-accent/50 transition-colors">
+              <CardContent className="p-4" onClick={() => editExperience(experience)}>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-semibold">{experience.position}</h3>
+                    <p className="text-sm text-muted-foreground">{experience.company}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {experience.startDate} - {experience.current ? 'Atual' : experience.endDate}
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeExperience(experience.id);
+                    }}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    removeExperience(exp.id);
-                  }}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           ))}
           
-          {experiences.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground">
-              <Briefcase className="w-12 h-12 mx-auto mb-4 opacity-50" />
-              <p>Nenhuma experiência adicionada</p>
-              <p className="text-sm">Clique em "Adicionar" para começar</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+          <Button onClick={addExperience} variant="outline" className="w-full">
+            <Plus className="w-4 h-4 mr-2" />
+            Adicionar Experiência
+          </Button>
+        </div>
+      </CardContent>
 
-      {/* Modal Multi-Step */}
       <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Briefcase className="w-5 h-5" />
-              {editingExperience?.company ? 'Editar Experiência' : 'Nova Experiência'}
+            <DialogTitle>
+              {editingExperience?.id ? 'Editar Experiência' : 'Nova Experiência'}
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-6">
-            {/* Barra de Progresso */}
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm text-muted-foreground">
-                <span>Etapa {currentStep + 1} de {steps.length}</span>
-                <span>{Math.round(progress)}% concluído</span>
-              </div>
-              <Progress value={progress} className="h-2" />
-              <p className="text-sm font-medium text-center">{steps[currentStep]?.title}</p>
-            </div>
-
-            {/* Conteúdo da Etapa */}
-            <div className="min-h-[200px]">
-              {renderStepContent()}
-            </div>
-
-            {/* Navegação */}
-            <div className="flex justify-between">
-              <Button
-                variant="outline"
-                onClick={prevStep}
-                disabled={currentStep === 0}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Anterior
-              </Button>
-
-              <div className="flex gap-2">
-                {currentStep === steps.length - 1 ? (
-                  <div className="flex gap-2">
-                    <Button onClick={saveExperience} className="flex items-center gap-2">
-                      <Check className="w-4 h-4" />
-                      Salvar Experiência
-                    </Button>
-                    <Button 
-                      onClick={() => {
-                        // Salva a experiência atual
-                        saveExperience();
-                        // Volta para a etapa 1 para adicionar nova tarefa
-                        setCurrentStep(0);
-                        // Cria uma nova experiência baseada na atual
-                        const newTask = {
-                          id: Date.now().toString(),
-                          company: editingExperience.company,
-                          position: editingExperience.position,
-                          startDate: editingExperience.startDate,
-                          endDate: editingExperience.endDate,
-                          current: editingExperience.current,
-                          isPersonalProject: editingExperience.isPersonalProject,
-                          context: '',
-                          problem: '',
-                          solution: '',
-                          technologies: '',
-                          impact: '',
-                          starText: '',
-                          tasks: []
-                        };
-                        setEditingExperience(newTask);
-                      }}
-                      variant="outline"
-                      className="flex items-center gap-2"
-                    >
-                      <Plus className="w-4 h-4" />
-                      Adicionar Nova Tarefa
-                    </Button>
+          {editingExperience && (
+            <div className="space-y-6">
+              {/* Informações Básicas */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Informações Básicas</h3>
+                
+                <div className="grid grid-cols-1 gap-4">
+                  <div>
+                    <Label htmlFor="company">Empresa/Organização</Label>
+                    <Input
+                      id="company"
+                      value={editingExperience.company}
+                      onChange={(e) => updateEditingExperience('company', e.target.value)}
+                      placeholder="Nome da empresa ou organização"
+                    />
                   </div>
-                ) : (
-                  <Button
-                    onClick={nextStep}
-                    disabled={!canProceed()}
-                  >
-                    Próximo
-                    <ArrowRight className="w-4 h-4 ml-2" />
-                  </Button>
-                )}
+
+                  <div>
+                    <Label htmlFor="position">Cargo/Posição</Label>
+                    <Input
+                      id="position"
+                      value={editingExperience.position}
+                      onChange={(e) => updateEditingExperience('position', e.target.value)}
+                      placeholder="Seu cargo ou função"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="startDate">Data de Início</Label>
+                      <DatePicker
+                        date={parseDate(editingExperience.startDate)}
+                        onSelect={(date) => {
+                          if (date) {
+                            updateEditingExperience('startDate', date);
+                          }
+                        }}
+                        placeholder="Selecione a data de início"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="endDate">Data de Término</Label>
+                      <DatePicker
+                        date={parseDate(editingExperience.endDate)}
+                        onSelect={(date) => {
+                          if (date) {
+                            updateEditingExperience('endDate', date);
+                          }
+                        }}
+                        placeholder="Selecione a data de término"
+                        disabled={editingExperience.current}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="current"
+                      checked={editingExperience.current}
+                      onCheckedChange={(checked) => updateEditingExperience('current', !!checked)}
+                    />
+                    <Label htmlFor="current">Trabalho atual</Label>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="isPersonalProject"
+                      checked={editingExperience.isPersonalProject}
+                      onCheckedChange={(checked) => updateEditingExperience('isPersonalProject', !!checked)}
+                    />
+                    <Label htmlFor="isPersonalProject">Projeto pessoal</Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Conquistas e Responsabilidades */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Conquistas e Responsabilidades</h3>
+                
+                {editingExperience.achievements.map((achievement, index) => (
+                  <Card key={achievement.id} className="p-4">
+                    <div className="flex justify-between items-center mb-4">
+                      <h4 className="text-md font-medium">Conquista #{index + 1}</h4>
+                      {editingExperience.achievements.length > 1 && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => removeAchievement(achievement.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="space-y-4">
+                      {/* Situação (S) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="flex items-center gap-2">
+                            Situação (S)
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                              ℹ️
+                            </span>
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => refineWithAI(achievement.id, 'situation')}
+                            disabled={aiLoading[`${achievement.id}-situation`]}
+                          >
+                            {aiLoading[`${achievement.id}-situation`] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Melhorar
+                          </Button>
+                        </div>
+                        <Textarea
+                          value={achievement.situation}
+                          onChange={(e) => updateAchievement(achievement.id, 'situation', e.target.value)}
+                          placeholder="Ex: A API de pagamentos apresentava alta latência em picos de uso..."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      {/* Tarefa (T) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="flex items-center gap-2">
+                            Tarefa (T)
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                              ℹ️
+                            </span>
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => refineWithAI(achievement.id, 'task')}
+                            disabled={aiLoading[`${achievement.id}-task`]}
+                          >
+                            {aiLoading[`${achievement.id}-task`] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Melhorar
+                          </Button>
+                        </div>
+                        <Textarea
+                          value={achievement.task}
+                          onChange={(e) => updateAchievement(achievement.id, 'task', e.target.value)}
+                          placeholder="Ex: Minha tarefa era otimizar a performance da API para reduzir o tempo de resposta em 50%."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      {/* Ação (A) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="flex items-center gap-2">
+                            Ação (A)
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                              ℹ️
+                            </span>
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => refineWithAI(achievement.id, 'action')}
+                            disabled={aiLoading[`${achievement.id}-action`]}
+                          >
+                            {aiLoading[`${achievement.id}-action`] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Melhorar
+                          </Button>
+                        </div>
+                        <Textarea
+                          value={achievement.action}
+                          onChange={(e) => updateAchievement(achievement.id, 'action', e.target.value)}
+                          placeholder="Ex: Implementei um sistema de cache com Redis, otimizei queries no banco de dados PostgreSQL e refatorei o código para usar processamento assíncrono."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      {/* Resultado (R) */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label className="flex items-center gap-2">
+                            Resultado (R)
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded">
+                              ℹ️
+                            </span>
+                          </Label>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => refineWithAI(achievement.id, 'result')}
+                            disabled={aiLoading[`${achievement.id}-result`]}
+                          >
+                            {aiLoading[`${achievement.id}-result`] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Melhorar
+                          </Button>
+                        </div>
+                        <Textarea
+                          value={achievement.result}
+                          onChange={(e) => updateAchievement(achievement.id, 'result', e.target.value)}
+                          placeholder="Ex: Redução de 60% no tempo de resposta médio, suportando 20k requisições por minuto e eliminando 99% dos erros de timeout."
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      {/* Descrição Final */}
+                      <div>
+                        <div className="flex items-center justify-between mb-2">
+                          <Label>Descrição Final (Gerada)</Label>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => generateDescription(achievement.id)}
+                            disabled={aiLoading[`${achievement.id}-description`]}
+                          >
+                            {aiLoading[`${achievement.id}-description`] ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Sparkles className="w-4 h-4" />
+                            )}
+                            Gerar Descrição
+                          </Button>
+                        </div>
+                        <Textarea
+                          value={achievement.finalDescription}
+                          onChange={(e) => updateAchievement(achievement.id, 'finalDescription', e.target.value)}
+                          placeholder="Preencha todos os campos STAR acima para gerar a descrição final..."
+                          className="min-h-[100px] bg-muted/50"
+                          readOnly={!achievement.finalDescription}
+                        />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+
+                <Button onClick={addAchievement} variant="outline" className="w-full">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Adicionar Outra Conquista
+                </Button>
+              </div>
+
+              {/* Botões de ação */}
+              <div className="flex gap-2 justify-end">
+                <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button onClick={saveExperience} className="flex items-center gap-2">
+                  <Check className="w-4 h-4" />
+                  Salvar Experiência
+                </Button>
               </div>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
-    </div>
+    </Card>
   );
 };
 
